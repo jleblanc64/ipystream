@@ -1,8 +1,8 @@
 from typing import Callable
 
 from ipywidgets import HTML, RadioButtons
-from stream import Stream, WidgetCurrentsChildren
-from tests.local_tests.notebook.ronquoz.display_results.ipystream.demo_stream_constant_level import wait_stream
+from ipystream.stream import Stream, WidgetCurrentsChildren
+from tests.utils import wait_stream
 
 
 def drop(v):
@@ -41,21 +41,22 @@ cache = {
     "quiet_display": True,
 }
 
-s = Stream(cache=cache, debounce_sec=0.2)
-widget1 = drop_l(["a", "c"])
-s.register(1, [lambda x: widget1])
-s.register(2, [lambda x: drop("c"), lambda x: drop("d")], updaterI(1), vertical=True)
-s.register(3, [lambda x: drop("f"), lambda x: HTML("f2")], updaterI(2))
+def test():
+    s = Stream(cache=cache, debounce_sec=0.2)
+    widget1 = drop_l(["a", "c"])
+    s.register(1, [lambda x: widget1])
+    s.register(2, [lambda x: drop("c"), lambda x: drop("d")], updaterI(1), vertical=True)
+    s.register(3, [lambda x: drop("f"), lambda x: HTML("f2")], updaterI(2))
 
-s.display_registered()
+    s.display_registered()
 
-#
-widget1.value = "c"
-wait_stream(1, s)
-hbox = s.cache["logs"]["3"].children
-assert hbox[0].value == "a1c2_0"
+    #
+    widget1.value = "c"
+    wait_stream(1, s)
+    hbox = s.cache["logs"]["3"].children
+    assert hbox[0].value == "a1c2_0"
 
-widget1.value = "a"
-wait_stream(2, s)
-hbox = s.cache["logs"]["3"].children
-assert hbox[0].value == "a1b1_0"
+    widget1.value = "a"
+    wait_stream(2, s)
+    hbox = s.cache["logs"]["3"].children
+    assert hbox[0].value == "a1b1_0"

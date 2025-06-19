@@ -1,8 +1,8 @@
 from typing import Callable
 
 from ipywidgets import HTML, RadioButtons
-from stream import Stream, WidgetCurrentsChildren
-from tests.local_tests.notebook.ronquoz.display_results.ipystream.demo_stream_constant_level import wait_stream
+from ipystream.stream import Stream, WidgetCurrentsChildren
+from tests.utils import wait_stream
 
 
 def drop(v):
@@ -46,35 +46,36 @@ cache = {
     "quiet_display": True,
 }
 
-s = Stream(cache=cache, debounce_sec=0.2)
-widget1 = drop_l(["a", "c"])
-s.register(1, [lambda x: widget1], title="a")
-s.register(2, [lambda x: drop("c")], updaterI(1), title="b")
-s.register(3, [lambda x: drop("f"), lambda x: HTML("f2")], updaterI(2), title="c", vertical=True)
+def test():
+    s = Stream(cache=cache, debounce_sec=0.2)
+    widget1 = drop_l(["a", "c"])
+    s.register(1, [lambda x: widget1], title="a")
+    s.register(2, [lambda x: drop("c")], updaterI(1), title="b")
+    s.register(3, [lambda x: drop("f"), lambda x: HTML("f2")], updaterI(2), title="c", vertical=True)
 
-s.display_registered()
+    s.display_registered()
 
-#
-radio = s.cache["logs"]["3_0"]
-html = s.cache["logs"]["3_1"]
-assert radio.value == "a1_0"
-assert "[1, 2]" in html.value
+    #
+    radio = s.cache["logs"]["3_0"]
+    html = s.cache["logs"]["3_1"]
+    assert radio.value == "a1_0"
+    assert "[1, 2]" in html.value
 
-widget1.value = "c"
-wait_stream(1, s)
-assert len(s.cache["lvl"]) == 4
+    widget1.value = "c"
+    wait_stream(1, s)
+    assert len(s.cache["lvl"]) == 4
 
-radio = s.cache["logs"]["3_0"]
-html = s.cache["logs"]["3_1"]
-assert radio.value == "a2_0"
-assert "[1, 2, 1, 2]" in html.value
+    radio = s.cache["logs"]["3_0"]
+    html = s.cache["logs"]["3_1"]
+    assert radio.value == "a2_0"
+    assert "[1, 2, 1, 2]" in html.value
 
-#
-widget1.value = "a"
-wait_stream(2, s)
-assert len(s.cache["lvl"]) == 6
+    #
+    widget1.value = "a"
+    wait_stream(2, s)
+    assert len(s.cache["lvl"]) == 6
 
-radio = s.cache["logs"]["3_0"]
-html = s.cache["logs"]["3_1"]
-assert radio.value == "a1_0"
-assert "[1, 2, 1, 2, 1, 2]" in html.value
+    radio = s.cache["logs"]["3_0"]
+    html = s.cache["logs"]["3_1"]
+    assert radio.value == "a1_0"
+    assert "[1, 2, 1, 2, 1, 2]" in html.value
