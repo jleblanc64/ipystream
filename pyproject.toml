@@ -15,9 +15,10 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8.1"
+python = ">=3.10"
 ipydatagrid = "1.1.16"
 solara = "1.45.0"
+pydantic = "2.11.7"
 
 [tool.poetry.dev-dependencies]
 pytest = "7.0"
