@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ipystream"
+version = "0.1.0"
+description = "Easy interactive Jupyter dashboards, flowing top to bottom like a stream"
+readme = "README.md"
+requires-python = ">=3.7"
+license = { file = "LICENSE" }
+
+authors = [
+    { name = "Charles Dabadie", email = "dabadich@gmail.com" }
+]
+
+dependencies = [
+    "ipydatagrid==1.1.16",
+    "solara==1.45.0",
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/jleblanc64/ipystream"
+Issues = "https://github.com/jleblanc64/ipystream/issues"
