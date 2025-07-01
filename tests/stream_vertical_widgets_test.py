@@ -1,8 +1,9 @@
 from typing import Callable
 
+import pytest
 from ipywidgets import HTML, RadioButtons
 from ipystream.stream import Stream, WidgetCurrentsChildren
-from tests.utils import wait_stream
+from tests.utils import wait_stream, wait_stream_async
 
 
 def drop(v):
@@ -41,7 +42,8 @@ cache = {
     "quiet_display": True,
 }
 
-def test():
+@pytest.mark.asyncio
+async def test():
     s = Stream(cache=cache, debounce_sec=0.2)
     widget1 = drop_l(["a", "c"])
     s.register(1, [lambda x: widget1])
@@ -52,11 +54,11 @@ def test():
 
     #
     widget1.value = "c"
-    wait_stream(1, s)
+    await wait_stream_async(1, s)
     hbox = s.cache["logs"]["3"].children
     assert hbox[0].value == "a1c2_0"
 
     widget1.value = "a"
-    wait_stream(2, s)
+    await wait_stream_async(2, s)
     hbox = s.cache["logs"]["3"].children
     assert hbox[0].value == "a1b1_0"

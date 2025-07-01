@@ -9,6 +9,8 @@ from IPython.core.display_functions import clear_output, display, update_display
 from ipywidgets import HTML, HBox, IntText
 from pydantic import BaseModel
 
+from ipystream.async_debounce import AsyncDebouncer
+
 display_sep = "---------------------------------------------------------"
 internal_counter_desc = "#{[34_9azerfcd"
 quiet_display_key = "quiet_display"
@@ -192,10 +194,12 @@ class WidgetUpdater(BaseModel):
                 proxy_update_display(box, id, cache)
 
     def stream_down_obs(self, parents, currents, debouncer, currents_level, level_obj, last_level):
+        @debouncer
+        def widget_on_change(change):
+            self.stream_down(parents, currents, currents_level, level_obj, False, last_level)
+
         for widget in parents:
-            widget.observe(
-                lambda x: debouncer(self.stream_down, parents, currents, currents_level, level_obj, False, last_level), names="value"
-            )
+            widget.observe(widget_on_change, names="value")
 
     def disable_loading(self, level_obj, first_display: bool, last_level: bool):
         if not first_display:
@@ -219,13 +223,13 @@ def title_html(x):
     x = f"<font size='4' style='font-weight:bold;line-height: 50px'>{x}</font>"
     return HTML(x)
 
-
 class Stream(BaseModel):
     debounce_sec: float = 1.0
     level_to_widget: dict[int, WidgetUpdater] = {}
     cache: dict = {}
     lock: Any = None
     stream_update_done_count: int = -1
+    debouncer: Any = None
 
     def register(self, level, widgets=None, updater=None, vertical=False, title=None, split_hbox_after=None):
         if not self.level_to_widget:
@@ -240,6 +244,9 @@ class Stream(BaseModel):
         )
 
     def display_registered(self):
+        if not self.debouncer:
+            self.debouncer = AsyncDebouncer(self.debounce_sec)
+
         css = "<style>.widget-radio-box {margin-right: 40px;}</style>"
         display(HTML(css))
 
@@ -270,37 +277,12 @@ class Stream(BaseModel):
             int_txt = IntText(value=0, disabled=True, description=internal_counter_desc)
             children.append(int_txt)
 
-            @debounce(self.debounce_sec)
-            def debouncer(f, *args):
-                f(*args)
-
             # init
             last_level = level_i == len(levels) - 2
             wu.stream_down(currents, children, level_below, self, True, last_level)
 
             # update on change
-            wu.stream_down_obs(currents, children, debouncer, level_below, self, last_level)
-
-
-def debounce(wait: float):
-    def decorator(fn):
-        timer = None
-
-        def debounced(*args, **kwargs):
-            nonlocal timer
-
-            def call_it():
-                fn(*args, **kwargs)
-
-            if timer is not None:
-                timer.cancel()
-
-            timer = threading.Timer(wait, call_it)
-            timer.start()
-
-        return debounced
-
-    return decorator
+            wu.stream_down_obs(currents, children, self.debouncer, level_below, self, last_level)
 
 
 def check_javascript():
