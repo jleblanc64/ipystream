@@ -64,3 +64,7 @@ async def test():
     hbox = s.cache["logs"]["3"].children
     assert hbox[0].value == "a1b1_0"
     assert ">a1b1_1<" in hbox[1].value
+
+    # test manually_stream_down()
+    s.manually_update_stream(1)
+    await wait_stream_async(3, s)
