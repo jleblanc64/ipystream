@@ -64,6 +64,9 @@ class WidgetCurrentsChildren(BaseModel):
                 existing.value = value
                 self.current_idx = self.current_idx + 1
                 return h
+            elif hasattr(existing, "children"):
+                existing.children = widget.children
+
             elif self.vertical:
                 h.update(widget)
 
