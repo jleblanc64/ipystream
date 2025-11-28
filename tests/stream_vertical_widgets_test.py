@@ -42,12 +42,15 @@ cache = {
     "quiet_display": True,
 }
 
+
 @pytest.mark.asyncio
 async def test():
     s = Stream(cache=cache, debounce_sec=0.2)
     widget1 = drop_l(["a", "c"])
     s.register(1, [lambda x: widget1])
-    s.register(2, [lambda x: drop("c"), lambda x: drop("d")], updaterI(1), vertical=True)
+    s.register(
+        2, [lambda x: drop("c"), lambda x: drop("d")], updaterI(1), vertical=True
+    )
     s.register(3, [lambda x: drop("f"), lambda x: HTML("f2")], updaterI(2))
 
     s.display_registered()

@@ -4,6 +4,7 @@ from ipywidgets import widgets
 from plotly.io._utils import validate_coerce_fig_to_dict
 import plotly.graph_objects as go
 
+
 def plotly_fig_to_html(fig: go.Figure):
     # compute dimensions
     fig_dict = validate_coerce_fig_to_dict(fig, True)
@@ -22,7 +23,7 @@ def plotly_fig_to_html(fig: go.Figure):
 
     # build html
     html_content = fig.to_html(full_html=True, include_plotlyjs="cdn")
-    encoded_html = base64.b64encode(html_content.encode('utf-8')).decode('ascii')
+    encoded_html = base64.b64encode(html_content.encode("utf-8")).decode("ascii")
     src_url = f"data:text/html;base64,{encoded_html}"
     html_string = f'<iframe src="{src_url}" width="{width}" height="{height}" frameborder="0"></iframe>'
 

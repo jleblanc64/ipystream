@@ -42,6 +42,7 @@ cache = {
     "quiet_display": True,
 }
 
+
 @pytest.mark.asyncio
 async def test():
     s = Stream(cache=cache, debounce_sec=0.2)

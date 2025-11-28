@@ -3,12 +3,14 @@ from pydantic import BaseModel
 from ipywidgets import HTML
 from ipystream.utils import is_internal_counter, proxy_update_display
 
+
 class Handle(BaseModel):
     display_id: str
     cache: dict
 
     def update(self, widget):
         proxy_update_display(widget, self.display_id, self.cache)
+
 
 class WidgetCurrentsChildren(BaseModel):
     parents: list[Any]

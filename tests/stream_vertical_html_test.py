@@ -33,7 +33,6 @@ def updaterI(lvl) -> Callable[[WidgetCurrentsChildren], None]:
             concat = "".join([x.value for x in w.parents])
             for i, _ in enumerate(w.currents):
                 if i == 0:
-
                     opts = [f"{concat}_{str(i)}"]
                     w.display_or_update(RadioButtons(options=opts))
                 else:
@@ -47,13 +46,20 @@ cache = {
     "quiet_display": True,
 }
 
+
 @pytest.mark.asyncio
 async def test():
     s = Stream(cache=cache, debounce_sec=0.2)
     widget1 = drop_l(["a", "c"])
     s.register(1, [lambda x: widget1], title="a")
     s.register(2, [lambda x: drop("c")], updaterI(1), title="b")
-    s.register(3, [lambda x: drop("f"), lambda x: HTML("f2")], updaterI(2), title="c", vertical=True)
+    s.register(
+        3,
+        [lambda x: drop("f"), lambda x: HTML("f2")],
+        updaterI(2),
+        title="c",
+        vertical=True,
+    )
 
     s.display_registered()
 

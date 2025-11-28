@@ -41,6 +41,7 @@ def updaterI(lvl) -> Callable[[WidgetCurrentsChildren], None]:
 
     return updater
 
+
 @pytest.mark.asyncio
 async def test():
     cache = {
@@ -59,7 +60,6 @@ async def test():
     hbox = s.cache["logs"]["3"].children
     assert hbox[0].value == "a1_0"
     assert "[1, 2]" in hbox[1].value
-
 
     widget1.value = "c"
     await wait_stream_async(1, s)
