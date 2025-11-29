@@ -74,8 +74,9 @@ def patch(log_user_fun, token_to_user_fun):
                 data[kernel_id] = user
                 data_token[kernel_id] = token
 
-                with FileLock(FILE_LOCK):
-                    log_user_fun(token)
+                if log_user_fun:
+                    with FileLock(FILE_LOCK):
+                        log_user_fun(token)
 
                 _save_kernel_to_user(data)
                 _save_kernel_to_user(data_token, KERNEL_TO_TOKEN_FILE)
