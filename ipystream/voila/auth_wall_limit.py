@@ -49,7 +49,7 @@ def patch(log_user_fun, token_to_user_fun):
                 headers_dict = json.loads(headers)
                 token = get_token_from_headers(headers_dict)
 
-            if token:
+            if token and token_to_user_fun:
                 user = token_to_user_fun(token)
 
             with FileLock(FILE_LOCK):
