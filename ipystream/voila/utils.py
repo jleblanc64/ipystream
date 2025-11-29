@@ -1,5 +1,6 @@
 import os
 from http.cookies import SimpleCookie
+from pathlib import Path
 
 PARAM_KEY_TOKEN = "tok"
 
@@ -27,3 +28,17 @@ def is_sagemaker():
         "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI",
     ]
     return any(var in os.environ for var in sm_vars)
+
+def create_ipynb(path: str) -> Path:
+    content = """{"cells": [{
+      "cell_type": "code", "execution_count": null, "id": "run-cell", "metadata": {},"outputs": [],
+      "source": [
+        "from python.notebook import run\\n",
+        "run()"
+      ]}],
+      "metadata": {}, "nbformat": 4, "nbformat_minor": 5}"""
+
+    file_path = Path(path)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path.write_text(content, encoding="utf-8")
+    return file_path
