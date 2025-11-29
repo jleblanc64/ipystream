@@ -2,7 +2,7 @@ import jwt
 from jwt import PyJWKClient
 
 
-def token_to_user(token, token_issuer, token_decoded_to_user_fun):
+def token_to_user_generic(token, token_issuer, token_decoded_to_user_fun):
     # Get JWKs URL from token
     jwks_url, decoded = get_jwks_url_from_token(token)
 

@@ -6,22 +6,21 @@ from tornado.web import HTTPError
 from voila.handler import VoilaHandler
 from voila import voila_kernel_manager
 
-from kernel import (
+from ipystream.voila.kernel import (
     get_kernel_manager,
     get_original_shutdown_kernel,
     _load_kernel_to_user,
     _save_kernel_to_user,
     KERNEL_TO_TOKEN_FILE,
 )
-from login import token_to_user
-from utils import get_token_from_headers
+from ipystream.voila.utils import get_token_from_headers
 
 MAX_KERNELS = 8
 KERNEL_CLEANUP_TIMEOUT_SEC = 20
 FILE_LOCK = "kernel.lock"
 
 
-def patch(log_user_fun):
+def patch(log_user_fun, token_to_user_fun):
     # --- Monkey-patch shutdown_kernel to block external calls ---
     def controlled_shutdown_kernel(self, kernel_id, **kwargs):
         return asyncio.ensure_future(asyncio.sleep(0))  # Dummy completed awaitable
@@ -51,7 +50,7 @@ def patch(log_user_fun):
                 token = get_token_from_headers(headers_dict)
 
             if token:
-                user = token_to_user(token)
+                user = token_to_user_fun(token)
 
             with FileLock(FILE_LOCK):
                 if user:

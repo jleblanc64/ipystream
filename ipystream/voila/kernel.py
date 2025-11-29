@@ -84,8 +84,9 @@ def _load_kernel_to_user(file=KERNEL_TO_USER_FILE):
 
 
 def find_project_root() -> Path | None:
-    start_path = Path(__file__).resolve()
-    for parent in start_path.parents:
-        if (parent / ".git").exists():
-            return parent
+    start_path = Path.cwd().resolve()
+    # Check the start path and all its parents
+    for folder in [start_path, *start_path.parents]:
+        if (folder / ".git").exists():
+            return folder
     return None

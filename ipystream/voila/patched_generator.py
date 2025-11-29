@@ -12,7 +12,7 @@ import asyncio
 import json
 from voila.handler import VoilaHandler
 from tornado.web import HTTPError
-from utils import get_token_from_headers, PARAM_KEY_TOKEN
+from ipystream.voila.utils import get_token_from_headers, PARAM_KEY_TOKEN
 
 injection = (
     "<style>"

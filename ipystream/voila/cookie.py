@@ -1,4 +1,4 @@
-from utils import PARAM_KEY_TOKEN
+from ipystream.voila.utils import PARAM_KEY_TOKEN
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
 

@@ -8,14 +8,17 @@ from collections import defaultdict
 import tornado
 from tornado.ioloop import IOLoop
 
-from cookie import add_v_cookie
-from kernel import (
+from ipystream.voila.cookie import add_v_cookie
+from ipystream.voila.kernel import (
     get_original_shutdown_kernel,
     _load_kernel_to_user,
     KERNEL_TO_TOKEN_FILE,
     _save_kernel_to_user,
 )
-from auth_wall_limit import KERNEL_CLEANUP_TIMEOUT_SEC, get_kernel_manager
+from ipystream.voila.auth_wall_limit import (
+    KERNEL_CLEANUP_TIMEOUT_SEC,
+    get_kernel_manager,
+)
 
 NOTEBOOK = "misc/demo.ipynb"
 POOL_SIZE = 2
