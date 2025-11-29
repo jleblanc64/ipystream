@@ -25,7 +25,7 @@ injection = (
 )
 
 
-def patch_voila_get_generator():
+def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN):
     # --- Patch VoilaHandler to require ?user=... ---
     _original_prepare = VoilaHandler.prepare
 
@@ -47,7 +47,8 @@ def patch_voila_get_generator():
 
         await _original_prepare(self)
 
-    VoilaHandler.prepare = _patched_prepare
+    if enforce_PARAM_KEY_TOKEN:
+        VoilaHandler.prepare = _patched_prepare
 
     """
     Monkey-patch VoilaHandler.get_generator with the exact given implementation,
