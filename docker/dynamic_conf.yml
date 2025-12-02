@@ -1,0 +1,44 @@
+http:
+  middlewares:
+    auth-basic:
+      basicAuth:
+        users:
+          - "paymatch:$apr1$YmlnzeBb$Z1FIjzJdyxyVCnCq9uWoB."
+
+    cors-voila:
+      headers:
+        accessControlAllowOriginList:
+          - "*"
+        accessControlAllowMethods: "GET,POST,OPTIONS"
+        accessControlAllowHeaders: "*"
+        accessControlMaxAge: 100
+        addVaryHeader: true
+
+  routers:
+    voila:
+      rule: "HostRegexp(`{host:.+}`)"
+      service: voila-service
+      entryPoints:
+        - web
+      middlewares:
+#        - auth-basic
+        - cors-voila
+      priority: 10
+
+    tmp-log-router:
+      rule: "HostRegexp(`{host:.+}`) && (Path(`/kernel_count.txt`) || Path(`/ps.txt`))"
+      service: tmp-log-service
+      entryPoints:
+        - web
+      priority: 200
+
+  services:
+    voila-service:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:8866"
+
+    tmp-log-service:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:8867"
