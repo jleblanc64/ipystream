@@ -41,9 +41,9 @@ RUN mkdir -p /etc/jupyter && \
 COPY . .
 
 # Copy Traefik static config file (you create traefik.yml next)
-COPY healthcheck/count_kernels.sh /app/count_kernels.sh
-COPY healthcheck/dynamic_conf.yml /etc/traefik/dynamic_conf.yml
-COPY healthcheck/traefik.yml /etc/traefik/traefik.yml
+COPY count_kernels.sh /app/count_kernels.sh
+COPY dynamic_conf.yml /etc/traefik/dynamic_conf.yml
+COPY traefik.yml /etc/traefik/traefik.yml
 COPY run_voila.py /app/run_voila.py
 
 # count_kernels
