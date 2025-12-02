@@ -1,61 +1,28 @@
-FROM python:3.11-slim-bullseye
+#!/bin/bash
 
-WORKDIR /app
+REPO="jleblanc64/ipystream"
+BRANCH="main"
+FOLDER="docker"
+OUT_DIR="docker"
 
-# Install dependencies + tools
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    procps \
-    curl \
-    build-essential \
-    nodejs \
-    npm && \
-    rm -rf /var/lib/apt/lists/*
+mkdir -p "$OUT_DIR"
 
-# Install python deps
-COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    python -m ipykernel install --user
+# Query GitHub API for folder contents
+curl -s "https://api.github.com/repos/$REPO/contents/$FOLDER?ref=$BRANCH" \
+  | jq -r '.[] | select(.type=="file") | .download_url' \
+  | while read url; do
+        echo "Downloading $url"
+        curl -L "$url" -o "$OUT_DIR/$(basename "$url")"
+    done
 
-# Download Traefik static binary (v2.10.1)
-RUN curl -L -o /tmp/traefik.tar.gz https://github.com/traefik/traefik/releases/download/v2.10.1/traefik_v2.10.1_linux_amd64.tar.gz && \
-    tar -xzf /tmp/traefik.tar.gz -C /usr/local/bin/ traefik && \
-    chmod +x /usr/local/bin/traefik && rm /tmp/traefik.tar.gz
+echo "Done."
 
-# Setup Voila config to allow websocket from Traefik on same host
-RUN mkdir -p /etc/jupyter && \
-    echo '{ \
-      "VoilaConfiguration": { \
-        "file_allowlist": [".*", "iframe_figures/.*"], \
-        "show_tracebacks": true \
-      }, \
-      "ServerApp": { \
-        "allow_origin": "*", \
-        "allow_credentials": true, \
-        "disable_check_xsrf": true, \
-        "disable_check_trust": true \
-      } \
-    }' > /etc/jupyter/voila.json
+cp run_voila.py docker/
+cp requirements.txt docker/
+docker build -t app_cars docker
 
-# Copy application code
-COPY . .
+# optional: kill previously started app
+docker ps --filter "publish=8888" -q | xargs -r docker stop \
+ && docker ps -a --filter "publish=8888" -q | xargs -r docker rm
 
-# Copy Traefik static config file (you create traefik.yml next)
-COPY count_kernels.sh /app/count_kernels.sh
-COPY dynamic_conf.yml /etc/traefik/dynamic_conf.yml
-COPY traefik.yml /etc/traefik/traefik.yml
-COPY run_voila.py /app/run_voila.py
-
-# count_kernels
-RUN chmod +x /app/count_kernels.sh
-
-EXPOSE 80
-
-CMD ["sh", "-c", "\
-    /app/count_kernels.sh & \
-    python -m http.server 8867 --directory /tmp & \
-    ( \
-      python /app/run_voila.py > /dev/null 2>&1 & \
-      echo 'Voila running at: http://localhost:8888' \
-    ) & \
-    traefik --configFile=/etc/traefik/traefik.yml"]
+docker run -p 8888:80 app_cars
