@@ -17,6 +17,8 @@ curl -s "https://api.github.com/repos/$REPO/contents/$FOLDER?ref=$BRANCH" \
 
 echo "Done."
 
+mkdir docker/.git
+cp -r python docker
 cp run_voila.py docker/
 cp requirements.txt docker/
 docker build -t app_cars docker
