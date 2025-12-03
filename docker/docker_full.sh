@@ -11,8 +11,17 @@ mkdir -p "$OUT_DIR"
 curl -s "https://api.github.com/repos/$REPO/contents/$FOLDER?ref=$BRANCH" \
   | jq -r '.[] | select(.type=="file") | .download_url' \
   | while read url; do
+        filename="$(basename "$url")"
+        outpath="$OUT_DIR/$filename"
+
+        # Skip if file is traefik.tar.gz and already exists
+        if [ "$filename" = "traefik.tar.gz" ] && [ -f "$outpath" ]; then
+            echo "Skipping $filename (already exists)"
+            continue
+        fi
+
         echo "Downloading $url"
-        curl -L "$url" -o "$OUT_DIR/$(basename "$url")"
+        curl -L "$url" -o "$outpath"
     done
 
 echo "Done."
