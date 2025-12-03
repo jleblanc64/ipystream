@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # --- Install Python dependencies ---
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
-    pip install --use-feature=fast-deps -r requirements.txt && \
+    pip install -r requirements.txt && \
     python -m ipykernel install --user
 
 # --- Download Traefik static binary (v2.10.1) ---
