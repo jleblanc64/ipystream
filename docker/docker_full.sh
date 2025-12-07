@@ -15,7 +15,7 @@ curl -s "https://api.github.com/repos/$REPO/contents/$FOLDER?ref=$BRANCH" \
         outpath="$OUT_DIR/$filename"
 
         # Skip if file is traefik.tar.gz and already exists
-        if [ "$filename" = "traefik.tar.gz" ] && [ -f "$outpath" ]; then
+        if ( [ "$filename" = "traefik.tar.gz" ] || [ "$filename" = "flask_app.py" ] ) && [ -f "$outpath" ]; then
             echo "Skipping $filename (already exists)"
             continue
         fi
