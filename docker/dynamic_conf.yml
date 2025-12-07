@@ -32,6 +32,13 @@ http:
         - web
       priority: 200
 
+    flask-router:
+      rule: "HostRegexp(`{host:.+}`) && Path(`/flask`)"
+      service: flask-service
+      entryPoints:
+        - web
+      priority: 300
+
   services:
     voila-service:
       loadBalancer:
@@ -42,3 +49,8 @@ http:
       loadBalancer:
         servers:
           - url: "http://127.0.0.1:8867"
+
+    flask-service:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:8868"

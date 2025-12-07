@@ -54,4 +54,5 @@ CMD ["sh", "-c", "\
       python /app/run_voila.py > /dev/null 2>&1 & \
       echo 'Voila running at: http://localhost:8888' \
     ) & \
+    python flask.py & \
     traefik --configFile=/etc/traefik/traefik.yml"]
