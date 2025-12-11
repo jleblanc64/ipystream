@@ -2,7 +2,7 @@ import jwt
 from jwt import PyJWKClient
 
 
-def token_to_user_generic(token, token_issuer, token_decoded_to_user_fun):
+def token_to_user_generic(token, token_issuers, token_decoded_to_user_fun):
     # Get JWKs URL from token
     jwks_url, decoded = get_jwks_url_from_token(token)
 
@@ -10,14 +10,13 @@ def token_to_user_generic(token, token_issuer, token_decoded_to_user_fun):
     jwks_client = PyJWKClient(jwks_url)
     signing_key = jwks_client.get_signing_key_from_jwt(token)
     audience = decoded["aud"]
-    issuer = [token_issuer]
 
     jwt.decode(
         token,
         signing_key.key,
         algorithms=["RS256"],
         audience=audience,
-        issuer=issuer,
+        issuer=token_issuers,
         options={"verify_signature": True},
     )
 
