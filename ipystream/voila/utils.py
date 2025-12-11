@@ -29,6 +29,7 @@ def is_sagemaker():
     ]
     return any(var in os.environ for var in sm_vars)
 
+
 def create_ipynb(path: str) -> Path:
     content = """{"cells": [{
       "cell_type": "code", "execution_count": null, "id": "run-cell", "metadata": {},"outputs": [],
