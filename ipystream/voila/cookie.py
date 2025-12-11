@@ -1,5 +1,6 @@
 from ipystream.voila.utils import PARAM_KEY_TOKEN, is_sagemaker
 
+
 def add_v_cookie(Voila):
     def v_cookie_wrapper(handler_class):
         class VCookieHandler(handler_class):
@@ -33,6 +34,7 @@ def add_v_cookie(Voila):
         return wrapped
 
     Voila.init_handlers = _patched_init_handlers
+
 
 def clean_url():
     return "/jupyterlab/default/proxy/8866/" if is_sagemaker() else "/"
