@@ -1,6 +1,4 @@
-from ipystream.voila.utils import PARAM_KEY_TOKEN
-from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
-
+from ipystream.voila.utils import PARAM_KEY_TOKEN, is_sagemaker
 
 def add_v_cookie(Voila):
     def v_cookie_wrapper(handler_class):
@@ -12,30 +10,9 @@ def add_v_cookie(Voila):
                     # Set the cookie
                     self.set_cookie(PARAM_KEY_TOKEN, v, path="/", httponly=True)
 
-                    # Remove token from URL and redirect
-                    parsed_url = urlparse(self.request.uri)
-                    query_params = parse_qs(parsed_url.query)
-
-                    # Remove the token parameter
-                    if PARAM_KEY_TOKEN in query_params:
-                        del query_params[PARAM_KEY_TOKEN]
-
-                    # Rebuild URL without the token
-                    new_query = urlencode(query_params, doseq=True)
-                    clean_url = urlunparse(
-                        (
-                            parsed_url.scheme,
-                            parsed_url.netloc,
-                            parsed_url.path,
-                            parsed_url.params,
-                            new_query,
-                            parsed_url.fragment,
-                        )
-                    )
-
                     # Redirect to clean URL
-                    self.redirect(clean_url)
-                    return  # Stop further processing
+                    self.redirect(clean_url())
+                    return
 
                 # Call parent prepare (sync or async)
                 parent_prepare = super().prepare()
@@ -56,3 +33,6 @@ def add_v_cookie(Voila):
         return wrapped
 
     Voila.init_handlers = _patched_init_handlers
+
+def clean_url():
+    return "/jupyterlab/default/proxy/8866/" if is_sagemaker() else "/"
