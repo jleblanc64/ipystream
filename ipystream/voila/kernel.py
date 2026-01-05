@@ -82,7 +82,9 @@ def _load_kernel_to_user(file=KERNEL_TO_USER_FILE):
     with open(path, "r") as f:
         return json.load(f)
 
+
 root_files = [".git", "requirements.txt"]
+
 
 def find_project_root() -> Path | None:
     start_path = Path.cwd().resolve()
