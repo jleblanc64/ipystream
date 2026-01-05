@@ -82,11 +82,12 @@ def _load_kernel_to_user(file=KERNEL_TO_USER_FILE):
     with open(path, "r") as f:
         return json.load(f)
 
+root_files = [".git", "requirements.txt"]
 
 def find_project_root() -> Path | None:
     start_path = Path.cwd().resolve()
     # Check the start path and all its parents
     for folder in [start_path, *start_path.parents]:
-        if (folder / ".git").exists():
+        if any((folder / f).exists() for f in root_files):
             return folder
     return None
