@@ -20,7 +20,6 @@ from ipystream.voila.auth_wall_limit import (
     get_kernel_manager,
 )
 
-POOL_SIZE = 2
 KERNEL_TO_USER_FILE = "kernel_to_user.json"
 MAIN_LOOP = IOLoop.current()
 

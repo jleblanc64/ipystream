@@ -1,3 +1,4 @@
+import json
 import os
 from http.cookies import SimpleCookie
 from pathlib import Path
@@ -30,18 +31,20 @@ def is_sagemaker():
     return any(var in os.environ for var in sm_vars)
 
 
-def create_ipynb(path: str) -> Path:
-    content = """{"cells": [{
-      "cell_type": "code", "execution_count": null, "id": "run-cell", "metadata": {},"outputs": [],
-      "source": [
-        "from ipystream.voila.kernel_heartbeat import setup_heartbeat_checker\\n",
-        "from python.notebook import run\\n",
-        "import warnings\\n",
-        "warnings.filterwarnings('ignore')\\n",
-        "setup_heartbeat_checker()\\n",
-        "run()"
-      ]}],
-      "metadata": {}, "nbformat": 4, "nbformat_minor": 5}"""
+def create_ipynb(path: str, use_xpython: bool) -> Path:
+    notebook_data = {"cells": [{"cell_type": "code", "execution_count": None, "id": "run-cell", "metadata": {}, "outputs": [], "source": [
+                "from ipystream.voila.kernel_heartbeat import setup_heartbeat_checker\n",
+                "from python.notebook import run\n",
+                "import warnings\n",
+                "warnings.filterwarnings('ignore')\n",
+                "setup_heartbeat_checker()\n",
+                "run()"
+            ]}], "metadata": {}, "nbformat": 4, "nbformat_minor": 5}
+
+    if use_xpython:
+        notebook_data["metadata"]["kernelspec"] = {"display_name": "xpython", "language": "python", "name": "xpython"}
+
+    content = json.dumps(notebook_data)
 
     file_path = Path(path)
     file_path.parent.mkdir(parents=True, exist_ok=True)
