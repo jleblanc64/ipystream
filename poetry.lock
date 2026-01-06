@@ -3518,7 +3518,59 @@ files = [
     {file = "widgetsnbextension-4.0.15.tar.gz", hash = "sha256:de8610639996f1567952d763a5a41af8af37f2575a41f9852a38f947eb82a3b9"},
 ]
 
+[[package]]
+name = "xeus-python"
+version = "0.17.6"
+description = "A wheel for xeus-python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "xeus_python-0.17.6-cp310-cp310-macosx_15_0_arm64.whl", hash = "sha256:240b21dc594126371d8d419c713109cad0dc9c870545f3140fb29763d1aefefd"},
+    {file = "xeus_python-0.17.6-cp310-cp310-macosx_15_0_x86_64.whl", hash = "sha256:bd17e226955e05e02f5b36a3df7561a39cd6609762cdfbb4cbf391289f68f201"},
+    {file = "xeus_python-0.17.6-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:30f79410103cd6ce45b048e17728e64f2634d0f228c2f5145a186524e9b1679c"},
+    {file = "xeus_python-0.17.6-cp310-cp310-win_amd64.whl", hash = "sha256:e408a164bd53867c7ef405a87fd212aa24a4dff42eab7b5987ca426f3afb1dda"},
+    {file = "xeus_python-0.17.6-cp311-cp311-macosx_15_0_arm64.whl", hash = "sha256:9e1f4f10ff89def9278d0ede3a033abeda03d36aa49c0d4c04a92da82a181739"},
+    {file = "xeus_python-0.17.6-cp311-cp311-macosx_15_0_x86_64.whl", hash = "sha256:4c8076e12f20120a059ee585067f8a9b18226ee4834927651881418da23ab331"},
+    {file = "xeus_python-0.17.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:2d53478dbd5c169dc5d09b950d8f22382bdf55930dd4fd791a4d8a1ba37b97b8"},
+    {file = "xeus_python-0.17.6-cp311-cp311-win_amd64.whl", hash = "sha256:9aa1c20fea710208ee77106f1793b43c96cb6c013ef7e0052f2926f8d953d2a6"},
+    {file = "xeus_python-0.17.6-cp312-cp312-macosx_15_0_arm64.whl", hash = "sha256:a186bfd180f91ae1350c0eea7091a40839332a5cd9fa0d5f008adb235aa318cf"},
+    {file = "xeus_python-0.17.6-cp312-cp312-macosx_15_0_x86_64.whl", hash = "sha256:cd832cd827b78e4791ce6b764143aa923b690d5590b9a15cd3363a4f5afde68a"},
+    {file = "xeus_python-0.17.6-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:8e6d6ab4f285b932172212103b5f6c01ae0fd7b1f0a0fcefed0d8ff64bf00ba8"},
+    {file = "xeus_python-0.17.6-cp312-cp312-win_amd64.whl", hash = "sha256:a404522dc0067ce6fbcb4d1f268967fa11e0653370dd7d40483ed7295846db31"},
+    {file = "xeus_python-0.17.6-cp313-cp313-macosx_15_0_arm64.whl", hash = "sha256:de11201ce842a30fc6e31f0d09fa2a07b46c3881eb58ed49fa2c2b6b54c0e292"},
+    {file = "xeus_python-0.17.6-cp313-cp313-macosx_15_0_x86_64.whl", hash = "sha256:df53fd45dbb8e6c0026e9d22ba5bd5e17a1806e4ce6bd81150b3dfa088db1745"},
+    {file = "xeus_python-0.17.6-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:832988f27112d9ab849d63086c9432874f7dc09326bae68dda4f7d1d888bf9c1"},
+    {file = "xeus_python-0.17.6-cp313-cp313-win_amd64.whl", hash = "sha256:414880ceca4c7728d2ff6ff9c3ac0f5d5725b8caae7f29804ac365ae81070b61"},
+    {file = "xeus_python-0.17.6-cp39-cp39-macosx_15_0_arm64.whl", hash = "sha256:1a4acda0fff466fc6a3c6ba13f819c834f5a1323170ea6057a3af1bf86f67ed1"},
+    {file = "xeus_python-0.17.6-cp39-cp39-macosx_15_0_x86_64.whl", hash = "sha256:e71608547db74160e5a98bcd28acd7eb410e6df588f63518f063a7ddecf8e1a7"},
+    {file = "xeus_python-0.17.6-cp39-cp39-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:d401b9081f98c580e1c329a2ed431ac6c924a6cefaccbd7dc1e002110b246acb"},
+    {file = "xeus_python-0.17.6-cp39-cp39-win_amd64.whl", hash = "sha256:1f44cdbcdfc79a7b5f695c41e3b635eafe55796cea4e46dba223ee5583227b58"},
+]
+
+[package.dependencies]
+pygments = ">=2.3.1,<3"
+xeus-python-shell = {version = ">=0.6,<0.7", extras = ["ipython"]}
+
+[[package]]
+name = "xeus-python-shell"
+version = "0.6.4"
+description = "The xeus-python core python logic."
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "xeus_python_shell-0.6.4-py3-none-any.whl", hash = "sha256:a702823213252ad5d0ffdf872a781dd8739e9b4d131f5b470058c8c369a31b3e"},
+    {file = "xeus_python_shell-0.6.4.tar.gz", hash = "sha256:c73a9602810456d5a347c84bd7a974f4a8a7edb94d03e81753246b8061960914"},
+]
+
+[package.dependencies]
+debugpy = ">=1.1.0,<2"
+ipython = {version = ">=7.21", optional = true, markers = "extra == \"ipython\""}
+
+[package.extras]
+ipython = ["ipython (>=7.21)"]
+wasm = ["pyjs (>=1.1.0,<2.0.0)"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10"
-content-hash = "3d0c5dbb13b35c3bb677c10cff7acbff242fa80bdfb68a38abf0338de62e6444"
+content-hash = "afb5536b2928b0d36995c3c323aa09d5401c66fb14a676041c6604b2bcaea250"
