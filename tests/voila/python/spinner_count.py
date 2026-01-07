@@ -3,6 +3,7 @@ from IPython.display import display, HTML
 import time
 from ipystream.voila.spinned import get
 
+
 def count_button():
     def fun(out):
         out.append_stdout("Starting counter...\n")
@@ -15,7 +16,7 @@ def count_button():
         with out:
             display(HTML("<b style='color:green;'>Task Completed Successfully!</b>"))
 
-    btn = widgets.Button(description="Run Task", button_style='info')
+    btn = widgets.Button(description="Run Task", button_style="info")
     out = widgets.Output()
     spinner_html = get(fun, btn, out)
     return widgets.VBox([btn, spinner_html, out])

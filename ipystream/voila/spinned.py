@@ -3,6 +3,7 @@ from IPython.display import display, HTML
 import time
 import threading
 
+
 def get(fun, btn, out):
     spinner_chars = ["|", "/", "-", "\\"]
     spinner_html = widgets.HTML(value="", layout=widgets.Layout(display="none"))

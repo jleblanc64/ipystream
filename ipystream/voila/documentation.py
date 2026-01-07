@@ -1,9 +1,10 @@
 import base64
 from ipywidgets import widgets
 
+
 def documentation_btn(html_content, button_text="Documentation"):
     # Base64 encode the HTML content for safe embedding
-    b64_html = base64.b64encode(html_content.encode('utf-8')).decode('utf-8')
+    b64_html = base64.b64encode(html_content.encode("utf-8")).decode("utf-8")
 
     # Wrap button in a span to control alignment
     js_code = f"""
