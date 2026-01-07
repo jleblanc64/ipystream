@@ -47,13 +47,21 @@ def get_token(cache: dict = {}):
     kernel_to_token = _load_kernel_to_user(KERNEL_TO_TOKEN_FILE)
     return kernel_to_token.get(get_kernel_id())
 
+
 def get_kernel_id():
     ipython = get_ipython()
     if not ipython:
         return "0"
 
     env_id = os.environ.get("VOILA_KERNEL_ID")
-    return env_id if env_id else re.search(r"kernel-(.*)\.json", ipython.config.get("IPKernelApp", {}).get("connection_file", "")).group(1)
+    return (
+        env_id
+        if env_id
+        else re.search(
+            r"kernel-(.*)\.json",
+            ipython.config.get("IPKernelApp", {}).get("connection_file", ""),
+        ).group(1)
+    )
 
 
 def pair_mappings(unpaired_mappings):

@@ -10,30 +10,54 @@ from ipystream.voila.kernel import find_project_root
 
 
 def run():
-    excel_path = find_project_root() / 'tests' / 'voila' / 'python' / 'cars.xlsx'
+    excel_path = find_project_root() / "tests" / "voila" / "python" / "cars.xlsx"
     df = pd.read_excel(excel_path)
-    cars = df.to_dict(orient='list')
-    dicts = df.to_dict(orient='records')
-    display(DataGrid(df, auto_fit_columns=True, layout={'height': '160px', 'width': 'auto'}, selection_mode="cell"))
+    cars = df.to_dict(orient="list")
+    dicts = df.to_dict(orient="records")
+    display(
+        DataGrid(
+            df,
+            auto_fit_columns=True,
+            layout={"height": "160px", "width": "auto"},
+            selection_mode="cell",
+        )
+    )
 
     def couleurs(w):
         w.cache["marque"] = w.parents[0].value
         dicts_filt = [d for d in dicts if d["Marque"] == w.cache["marque"]]
         opts = sorted(list(set([d["Couleur"] for d in dicts_filt])))
-        select = widgets.SelectMultiple(options=opts, value=opts, layout={'height': '50px'})
+        select = widgets.SelectMultiple(
+            options=opts, value=opts, layout={"height": "50px"}
+        )
         w.display_or_update(select)
 
     def annees(w):
-        dicts_filt = [d for d in dicts if d["Marque"] == w.cache["marque"] and d["Couleur"] in w.parents[0].value]
+        dicts_filt = [
+            d
+            for d in dicts
+            if d["Marque"] == w.cache["marque"] and d["Couleur"] in w.parents[0].value
+        ]
         annees = [d["Année"] for d in dicts_filt]
 
         annees_count = {k: 0 for k in annees}
-        for a in annees: annees_count[a] = annees_count[a] + 1
+        for a in annees:
+            annees_count[a] = annees_count[a] + 1
         annees = sorted(list(set(annees)))
         counts = [annees_count[a] for a in annees]
 
-        fig = go.Figure(data=[go.Pie(labels=annees, values=counts, textinfo="value", hoverinfo="label",  domain=dict(x=[0.05, 0.95], y=[0.05, 0.95]))])
-        fig.update_layout(width=300,height=250,margin=dict(l=0, r=0, t=0, b=0))
+        fig = go.Figure(
+            data=[
+                go.Pie(
+                    labels=annees,
+                    values=counts,
+                    textinfo="value",
+                    hoverinfo="label",
+                    domain=dict(x=[0.05, 0.95], y=[0.05, 0.95]),
+                )
+            ]
+        )
+        fig.update_layout(width=300, height=250, margin=dict(l=0, r=0, t=0, b=0))
         w.display_or_update(plotly_fig_to_html(fig))
 
         # datagrid

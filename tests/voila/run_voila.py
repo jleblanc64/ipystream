@@ -7,9 +7,18 @@ from ipystream.voila import run_raw
 use_xpython = True
 POOL_SIZE = 2
 
+
 def run():
-    run_raw.run(disable_logging=True, POOL_SIZE=POOL_SIZE, use_xpython=use_xpython, enforce_PARAM_KEY_TOKEN=False, log_user_fun=None,
-                token_to_user_fun=None, extra_args_override=None)
+    run_raw.run(
+        disable_logging=True,
+        POOL_SIZE=POOL_SIZE,
+        use_xpython=use_xpython,
+        enforce_PARAM_KEY_TOKEN=False,
+        log_user_fun=None,
+        token_to_user_fun=None,
+        extra_args_override=None,
+    )
+
 
 def register_local_xpython():
     # 1. Discover the current Python path
@@ -27,7 +36,9 @@ def register_local_xpython():
     else:
         # Fallback: Use the python interpreter with the launcher module
         # This is exactly what your successful 'ps aux' showed earlier
-        print("⚠️ 'xpython' binary not found. Falling back to 'python -m xpython_launcher'")
+        print(
+            "⚠️ 'xpython' binary not found. Falling back to 'python -m xpython_launcher'"
+        )
         executable_path = [str(current_python), "-m", "xpython_launcher"]
 
     # 3. Define destination
@@ -40,16 +51,17 @@ def register_local_xpython():
         "argv": executable_path + ["-f", "{connection_file}"],
         "display_name": "xpython (venv)",
         "language": "python",
-        "metadata": { "debugger": True }
+        "metadata": {"debugger": True},
     }
 
     # 5. Write the file
     kernel_json_path = kernel_dir / "kernel.json"
-    with open(kernel_json_path, 'w') as f:
+    with open(kernel_json_path, "w") as f:
         json.dump(kernel_data, f, indent=2)
 
     print(f"✅ Registered kernelspec at: {kernel_json_path}")
     print(f"🚀 Using command: {' '.join(executable_path)}")
+
 
 def patch_solara_comm():
     try:
@@ -77,10 +89,13 @@ def patch_solara_comm():
         elif replacement_str in content:
             print(f"ℹ️ Solara comm.py is already patched.")
         else:
-            print("⚠️ Could not find the target string in comm.py. The version might have changed.")
+            print(
+                "⚠️ Could not find the target string in comm.py. The version might have changed."
+            )
 
     except Exception as e:
         print(f"❌ Failed to patch Solara: {e}")
+
 
 if use_xpython:
     register_local_xpython()

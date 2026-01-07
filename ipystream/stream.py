@@ -111,7 +111,7 @@ class WidgetUpdater(BaseModel):
         self, parents, currents, debouncer, currents_level, level_obj, last_level
     ):
         @debouncer
-        def widget_on_change(change):
+        def widget_on_change(_):
             self.stream_down(
                 parents, currents, currents_level, level_obj, False, last_level
             )
