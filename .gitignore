@@ -4,3 +4,4 @@ dist
 .pytest_cache/
 kernel_to_token.json
 kernel_to_user.json
+tests/voila/jupyter.ipynb
