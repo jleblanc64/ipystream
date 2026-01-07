@@ -1,17 +1,24 @@
 import pandas as pd
 from ipydatagrid import DataGrid
 from IPython.core.display_functions import display
-from ipywidgets import RadioButtons, widgets
+from ipywidgets import RadioButtons, widgets, HTML
 from ipystream.stream import Stream
 from ipystream.renderer import plotly_fig_to_html
 import plotly.graph_objects as go
 from ipystream.voila.kernel import find_project_root
 from tests.voila.python.documentation_page import open_documentation
+from tests.voila.python.popup import popup_button
 
 
 def run():
     my_html = "<html><body><h1>Hello World</h1><p>Hello world2 !</p></body></html>"
     open_documentation(my_html)
+    display(HTML("<br>"))
+
+    popup_btn, popup_dialog = popup_button()
+    display(popup_btn)
+    display(popup_dialog)
+    display(HTML("<br>"))
 
     ######################################################################
     # excel cars
