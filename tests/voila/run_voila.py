@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from ipystream.voila import run_raw
 
-use_xpython = True
+use_xpython = False
 POOL_SIZE = 2
 
 

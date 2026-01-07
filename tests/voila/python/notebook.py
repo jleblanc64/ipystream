@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 from ipystream.voila.kernel import find_project_root
 from tests.voila.python.documentation_page import open_documentation
 from tests.voila.python.popup import popup_button
+from tests.voila.python.spinner_count import count_button
 
 
 def run():
@@ -18,6 +19,9 @@ def run():
     popup_btn, popup_dialog = popup_button()
     display(popup_btn)
     display(popup_dialog)
+    display(HTML("<br>"))
+
+    display(count_button())
     display(HTML("<br>"))
 
     ######################################################################
