@@ -5,15 +5,16 @@ from ipywidgets import RadioButtons, widgets, HTML
 from ipystream.stream import Stream
 from ipystream.renderer import plotly_fig_to_html
 import plotly.graph_objects as go
+
+from ipystream.voila.documentation import documentation_btn
 from ipystream.voila.kernel import find_project_root
-from tests.voila.python.documentation_page import open_documentation
 from tests.voila.python.popup import popup_button
 from tests.voila.python.spinner_count import count_button
 
 
 def run():
     my_html = "<html><body><h1>Hello World</h1><p>Hello world2 !</p></body></html>"
-    display(open_documentation(my_html))
+    display(documentation_btn(my_html))
     display(HTML("<br>"))
 
     popup_btn, popup_dialog = popup_button()

@@ -1,6 +1,6 @@
 from IPython.core.display import HTML
 
-def open_documentation(html_content, button_text="Documentation"):
+def documentation_btn(html_content, button_text="Documentation"):
     # Escape backticks for the JavaScript template literal
     safe_html = html_content.replace('\\', '\\\\').replace('`', '\\`').replace('$', '\\$')
 
