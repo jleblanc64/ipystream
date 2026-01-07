@@ -1,5 +1,4 @@
 from IPython.core.display import HTML
-from IPython.core.display_functions import display
 
 def open_documentation(html_content, button_text="Documentation"):
     # Escape backticks for the JavaScript template literal
@@ -28,4 +27,4 @@ def open_documentation(html_content, button_text="Documentation"):
         }}
         </script>
         """
-    display(HTML(js_code))
+    return HTML(js_code)

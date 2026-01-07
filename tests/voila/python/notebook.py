@@ -13,7 +13,7 @@ from tests.voila.python.spinner_count import count_button
 
 def run():
     my_html = "<html><body><h1>Hello World</h1><p>Hello world2 !</p></body></html>"
-    open_documentation(my_html)
+    display(open_documentation(my_html))
     display(HTML("<br>"))
 
     popup_btn, popup_dialog = popup_button()
