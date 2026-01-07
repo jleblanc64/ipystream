@@ -5,11 +5,16 @@ from ipywidgets import RadioButtons, widgets
 from ipystream.stream import Stream
 from ipystream.renderer import plotly_fig_to_html
 import plotly.graph_objects as go
-
 from ipystream.voila.kernel import find_project_root
+from tests.voila.python.documentation_page import open_documentation
 
 
 def run():
+    my_html = "<html><body><h1>Hello World</h1><p>Hello world2 !</p></body></html>"
+    open_documentation(my_html)
+
+    ######################################################################
+    # excel cars
     excel_path = find_project_root() / "tests" / "voila" / "python" / "cars.xlsx"
     df = pd.read_excel(excel_path)
     cars = df.to_dict(orient="list")
