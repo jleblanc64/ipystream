@@ -44,4 +44,8 @@ def run(
 
     if disable_logging:
         logging.disable(logging.CRITICAL)
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, 1)
+        os.dup2(devnull, 2)
+
     voila_app.start()
