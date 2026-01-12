@@ -10,9 +10,14 @@ def add_v_cookie(Voila):
                 if v:
                     # Set the cookie
                     self.set_cookie(PARAM_KEY_TOKEN, v, path="/", httponly=True)
+                    host_info = self.request.host  # e.g., "localhost:8867"
+
+                    port = "8866"
+                    if ":" in host_info:
+                        port = host_info.split(":")[-1]
 
                     # Redirect to clean URL
-                    self.redirect(clean_url())
+                    self.redirect(clean_url(port))
                     return
 
                 # Call parent prepare (sync or async)
@@ -36,5 +41,5 @@ def add_v_cookie(Voila):
     Voila.init_handlers = _patched_init_handlers
 
 
-def clean_url():
-    return "/jupyterlab/default/proxy/8866/" if is_sagemaker() else "/"
+def clean_url(port):
+    return f"/jupyterlab/default/proxy/{port}/" if is_sagemaker() else "/"
