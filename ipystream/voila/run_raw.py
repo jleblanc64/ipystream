@@ -13,6 +13,7 @@ def run(
     log_user_fun=None,
     token_to_user_fun=None,
     extra_args_override=None,
+    port=8866,
 ):
     patched_generator.patch_voila_get_generator(enforce_PARAM_KEY_TOKEN)
     auth_wall_limit.patch(log_user_fun, token_to_user_fun)
@@ -21,7 +22,7 @@ def run(
 
     os.environ["VOILA_APP"] = "1"
     extra_args = [
-        "--port=8866",
+        f"--port={port}",
         "--no-browser",
         "--Voila.ip=0.0.0.0",
         "--base_url=/",
@@ -40,7 +41,7 @@ def run(
     # start Voila
     voila_app = patch_voila.patch()
     voila_app.initialize()
-    print("VOILA: http://localhost:8866")
+    print(f"VOILA: http://localhost:{port}")
 
     if disable_logging:
         logging.disable(logging.CRITICAL)
