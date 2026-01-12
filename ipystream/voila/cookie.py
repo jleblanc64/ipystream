@@ -1,5 +1,3 @@
-import re
-
 from ipystream.voila.utils import PARAM_KEY_TOKEN, is_sagemaker
 
 
@@ -14,7 +12,7 @@ def add_v_cookie(Voila):
                     self.set_cookie(PARAM_KEY_TOKEN, v, path="/", httponly=True)
 
                     # Redirect to clean URL
-                    port = extract_port(self)
+                    port = self.get_argument("p", "8866")
                     self.redirect(clean_url(port))
                     return
 
@@ -38,22 +36,6 @@ def add_v_cookie(Voila):
 
     Voila.init_handlers = _patched_init_handlers
 
-
-def extract_port(handler):
-    uri = handler.request.uri  # e.g. /jupyterlab/default/proxy/8866/
-    host = handler.request.host # e.g. localhost:8867
-
-    # 1. Try to find /proxy/####/ in the URI path (Highest priority for SageMaker)
-    path_match = re.search(r'/proxy/(\d+)/', uri)
-    if path_match:
-        return path_match.group(1)
-
-    # 2. Try to get port from Host header (e.g. localhost:8867)
-    if ":" in host:
-        return host.split(":")[-1]
-
-    # 3. Final Fallback
-    return "8866"
 
 def clean_url(port):
     return f"/jupyterlab/default/proxy/{port}/" if is_sagemaker() else "/"
