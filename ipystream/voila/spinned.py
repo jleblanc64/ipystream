@@ -18,6 +18,7 @@ def get(fun, btn, out):
         spinner_html.value = ""
 
     def on_click_action(b):
+        b.disabled = True
         out.outputs = ()
         # 1. Reset UI
         spinner_html.layout.display = "inline-block"
@@ -38,6 +39,7 @@ def get(fun, btn, out):
                 # Use a tiny sleep to ensure the last message is rendered before hiding the spinner
                 time.sleep(0.2)
                 spinner_html.layout.display = "none"
+                b.disabled = False
 
         # Start the main logic in a separate thread so it doesn't block the UI thread
         threading.Thread(target=run_logic, daemon=True).start()
