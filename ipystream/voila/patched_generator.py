@@ -1,6 +1,5 @@
 import os
 import asyncio
-import json
 import psutil
 from tornado.httputil import split_host_and_port
 from voila.notebook_renderer import NotebookRenderer
@@ -13,7 +12,7 @@ from ipystream.voila.kernel import get_kernel_manager
 from ipystream.voila.patch_voila import _schedule_kernel_shutdown
 from ipystream.voila.utils import get_token_from_headers, PARAM_KEY_TOKEN
 
-VOILA_SPINNER_TIMEOUT = 5
+VOILA_SPINNER_TIMEOUT = 20
 
 injection = (
     "<style>"
