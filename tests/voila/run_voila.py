@@ -5,7 +5,7 @@ from pathlib import Path
 from ipystream.voila import run_raw
 
 use_xpython = True
-POOL_SIZE = 2
+POOL_SIZE = 1
 
 
 def run():
