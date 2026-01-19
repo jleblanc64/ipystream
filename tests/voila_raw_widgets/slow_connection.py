@@ -4,7 +4,7 @@ from tornado.web import StaticFileHandler
 
 
 def slow_connection():
-    LATENCY_PER_CHUNK = 1.0   # seconds per chunk
+    LATENCY_PER_CHUNK = 0.1   # seconds per chunk
     BYTES_PER_CHUNK = 1024    # send in small pieces
     _triggered = False
 
