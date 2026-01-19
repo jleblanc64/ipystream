@@ -3,6 +3,8 @@ import time
 import ipywidgets as widgets
 from IPython.display import display, HTML
 
+from ipystream.voila.watchdog_raw import display_voila_watchdog
+
 KERNEL_DEAD_TIMEOUT_SEC = 10
 CHECK_INTERVAL_MS = 1000
 
@@ -91,3 +93,6 @@ def setup_heartbeat_checker():
     """
 
     display(HTML(js_and_html_to_inject))
+
+    # detect raw widgets
+    display_voila_watchdog()
