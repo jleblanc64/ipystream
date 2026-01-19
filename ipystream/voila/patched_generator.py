@@ -1,9 +1,5 @@
 import os
 import asyncio
-import json
-from pathlib import Path
-from typing import Dict
-
 from tornado.httputil import split_host_and_port
 from voila.notebook_renderer import NotebookRenderer
 from voila.utils import ENV_VARIABLE, get_page_config
