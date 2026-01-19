@@ -34,14 +34,20 @@ def popup_button():
     popup_dialog = v.Dialog(
         v_model=False,
         width="350",
+        # This prevents the dialog from trying to fill the vertical viewport
+        scrollable=False,
         children=[
             v.Card(
+                # Use 'height: auto' to wrap only the content
+                style_="height: auto; display: flex; flex-direction: column;",
                 children=[
                     v.CardTitle(
                         class_="headline grey lighten-2",
                         children=["Message Settings", v.Spacer(), close_icon_btn],
                     ),
                     v.CardText(
+                        # ma-0 pa-4 ensures clean spacing without extra bloat
+                        class_="pa-4",
                         children=[
                             hello_html,
                             v.Layout(justify_center=True, children=[toggle_btn]),
