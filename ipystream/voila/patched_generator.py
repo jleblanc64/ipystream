@@ -12,6 +12,8 @@ import asyncio
 import json
 from voila.handler import VoilaHandler
 from tornado.web import HTTPError
+
+from ipystream.voila.patched_generator2 import timeout_spinner
 from ipystream.voila.utils import get_token_from_headers, PARAM_KEY_TOKEN
 
 injection = (
@@ -256,4 +258,4 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN):
         # --- END of original code -------------
 
     # Bind correctly as instance method
-    VoilaHandler.get_generator = patched_get_generator
+    VoilaHandler.get_generator = timeout_spinner(patched_get_generator)

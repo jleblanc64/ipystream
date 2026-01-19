@@ -1,0 +1,86 @@
+import asyncio
+import time
+import os
+import signal
+from datetime import datetime
+from ipystream.voila.patch_voila import _schedule_kernel_shutdown
+from ipystream.voila.kernel import get_kernel_manager
+
+timeout_seconds = 20
+LOG_FILE = "/home/charles/Downloads/log.txt"
+
+def log_to_file(message, level="INFO"):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+    try:
+        with open(LOG_FILE, "a") as f:
+            f.write(f"[{timestamp}] [{level}] {message}\n")
+    except: pass
+
+async def force_kill_kernel(kernel_id):
+    log_to_file(f"Shielded kill task started for: {kernel_id}", "WARN")
+    try:
+        mgr = get_kernel_manager()
+        # 1. Try the standard Voila shutdown
+        _schedule_kernel_shutdown(mgr, kernel_id)
+        # 2. Aggressive: Direct manager shutdown request
+        if hasattr(mgr, 'shutdown_kernel'):
+            await asyncio.sleep(0.1) # Give it a tiny moment to process
+            await asyncio.shield(mgr.shutdown_kernel(kernel_id, now=True))
+        log_to_file(f"Successfully sent shutdown command for {kernel_id}", "SUCCESS")
+    except Exception as e:
+        log_to_file(f"Failed to kill kernel {kernel_id}: {str(e)}", "CRITICAL")
+
+def timeout_spinner(_original_get_generator):
+    # clear the file
+    with open(LOG_FILE, 'w') as _: pass
+
+    async def patched_get_generator(self, *args, **kwargs):
+        log_to_file("get_generator started", "DEBUG")
+
+        agen = _original_get_generator(self, *args, **kwargs)
+        start_time = time.time()
+        curr_kernel_id = None
+        chunks_yielded = 0
+
+        try:
+            while True:
+                # Polling for ID
+                if not curr_kernel_id:
+                    curr_kernel_id = getattr(self, "kernel_id", None) or \
+                                     getattr(self, "_recovered_kernel_id", None)
+                    if not curr_kernel_id and hasattr(self, "kernel_manager"):
+                        curr_kernel_id = getattr(self.kernel_manager, "kernel_id", None)
+
+                try:
+                    # Fetch next chunk
+                    html_chunk = await asyncio.wait_for(agen.__anext__(), timeout=timeout_seconds)
+                    chunks_yielded += 1
+                    yield html_chunk
+
+                except (StopAsyncIteration, asyncio.CancelledError, asyncio.TimeoutError) as e:
+                    elapsed = time.time() - start_time
+                    if isinstance(e, asyncio.TimeoutError) or elapsed >= (timeout_seconds - 0.05):
+                        log_to_file(f"TIMEOUT DETECTED ({elapsed:.2f}s)", "ERROR")
+
+                        # Resolve the ID
+                        final_id = curr_kernel_id
+                        if not final_id and hasattr(self, "kernel_manager"):
+                            ids = self.kernel_manager.list_kernel_ids()
+                            if ids: final_id = ids[-1]
+
+                        if final_id:
+                            # SHIELD the cleanup so refresh doesn't cancel the kill
+                            asyncio.create_task(force_kill_kernel(final_id))
+                            yield f"<div style='background:red; color:white; padding:10px;'>Timeout: Kernel {final_id} killed.</div>"
+                        else:
+                            log_to_file("Could not find kernel ID to kill!", "CRITICAL")
+                        break
+                    else:
+                        # Clean finish or immediate DeadKernelError
+                        break
+
+        except Exception as e:
+            log_to_file(f"UNCAUGHT EXCEPTION: {type(e).__name__}: {str(e)}", "CRITICAL")
+            raise
+
+    return patched_get_generator
