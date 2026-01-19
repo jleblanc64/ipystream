@@ -10,11 +10,12 @@ timeout_seconds = 20
 LOG_FILE = "/home/charles/Downloads/log.txt"
 
 def log_to_file(message, level="INFO"):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-    try:
-        with open(LOG_FILE, "a") as f:
-            f.write(f"[{timestamp}] [{level}] {message}\n")
-    except: pass
+    pass
+    # timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+    # try:
+    #     with open(LOG_FILE, "a") as f:
+    #         f.write(f"[{timestamp}] [{level}] {message}\n")
+    # except: pass
 
 async def force_kill_kernel(kernel_id):
     log_to_file(f"Shielded kill task started for: {kernel_id}", "WARN")
