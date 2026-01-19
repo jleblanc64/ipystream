@@ -22,11 +22,12 @@ timeout_html = """
 
 injection = (
     "<style>"
-    "body.jp-Notebook, .jp-Notebook { background-color: white !important; color: black !important; }"
-    ".jp-Cell { background-color: white !important; color: black !important; }"
+    # Target the root, the notebook, and the main container
+    ":root, body, #main, .jp-Notebook, #rendered_cells { background-color: red !important; color: black !important; }"
+    ".jp-Cell, .jp-OutputArea-output { background-color: red !important; color: black !important; }"
     "label, div, span, p, li, th, td, pre { color: black !important; }"
-    "select { background-color: white !important; color: black !important; }"
-    ".leaflet-control-legend { background-color: white !important; color: black !important; }"
+    # This ensures that even after Voila "finishes" loading, the red persists
+    ".voila-loading { background-color: red !important; }"
     "</style>"
 )
 
