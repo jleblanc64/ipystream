@@ -36,6 +36,7 @@ injection = (
     "        var loader = document.querySelector('.voila-spinner, #loading, .jp-Spinner'); "
     "        if (loader && window.getComputedStyle(loader).display !== 'none') {"
     "            document.getElementById('voila-timeout-msg').style.display = 'block';"
+    "            loader.style.display = 'none';  /* FIX: Hide spinner on timeout */"
     "        }"
     f"    }}, {(timeout_seconds + 5) * 1000});"
     "})();"
