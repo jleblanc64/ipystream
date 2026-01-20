@@ -13,7 +13,7 @@ import json
 from voila.handler import VoilaHandler
 from tornado.web import HTTPError
 
-from ipystream.voila.patched_generator2 import timeout_spinner
+from ipystream.voila.patched_generator2 import timeout_spinner, timeout_seconds
 from ipystream.voila.utils import get_token_from_headers, PARAM_KEY_TOKEN
 
 injection = (
@@ -23,7 +23,23 @@ injection = (
     "label, div, span, p, li, th, td, pre { color: black !important; }"
     "select { background-color: white !important; color: black !important; }"
     ".leaflet-control-legend { background-color: white !important; color: black !important; }"
+    "#voila-timeout-msg { "
+    "   display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); "
+    "   background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; "
+    "   padding: 15px 30px; border-radius: 4px; z-index: 10001; font-family: sans-serif;"
+    "}"
     "</style>"
+    "<div id='voila-timeout-msg'>voila timeout, check your connection</div>"
+    "<script>"
+    "(function() {"
+    "    setTimeout(function() {"
+    "        var loader = document.querySelector('.voila-spinner, #loading, .jp-Spinner'); "
+    "        if (loader && window.getComputedStyle(loader).display !== 'none') {"
+    "            document.getElementById('voila-timeout-msg').style.display = 'block';"
+    "        }"
+    f"    }}, {(timeout_seconds + 5) * 1000});"
+    "})();"
+    "</script>"
 )
 
 
@@ -254,8 +270,10 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN):
                     yield time_out()
                 else:
                     if html_snippet is None:
+                        # Ensure the error message is hidden when finished
+                        yield "<script>document.getElementById('voila-timeout-msg').style.display='none';</script>"
                         break
-                    # FIX: Removed 'injection +' from here
+                    # --- FIX: Yield pure snippet without prepending injection ---
                     yield html_snippet
 
         # --- END of original code -------------
