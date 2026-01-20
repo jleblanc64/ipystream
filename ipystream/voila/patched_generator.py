@@ -106,6 +106,9 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN):
         self.set_header("Pragma", "no-cache")
         self.set_header("Expires", "0")
 
+        # FIX: Yield injection here so it only happens once per page load
+        yield injection
+
         try:
             current_notebook_data: Dict = self.kernel_manager.notebook_data.get(
                 notebook_path, {}
@@ -252,7 +255,7 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN):
                 else:
                     if html_snippet is None:
                         break
-                    html_snippet = injection + html_snippet
+                    # FIX: Removed 'injection +' from here
                     yield html_snippet
 
         # --- END of original code -------------
