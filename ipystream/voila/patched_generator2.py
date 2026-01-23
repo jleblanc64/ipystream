@@ -1,24 +1,27 @@
 import asyncio
 import time
-import os
-import signal
-from datetime import datetime
 from ipystream.voila.patch_voila import _schedule_kernel_shutdown
 from ipystream.voila.kernel import get_kernel_manager
 
 timeout_seconds = 20
 LOG_FILE = "/home/charles/Downloads/log.txt"
 
-def log_to_file(message, level="INFO"):
+def clear_log():
+    pass
+    # try:
+    #     with open(LOG_FILE, 'w') as _: pass
+    # except: pass
+
+def log_to_file(message):
     pass
     # timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
     # try:
     #     with open(LOG_FILE, "a") as f:
-    #         f.write(f"[{timestamp}] [{level}] {message}\n")
+    #         f.write(f"[{timestamp}] {message}\n")
     # except: pass
 
 async def force_kill_kernel(kernel_id):
-    log_to_file(f"Shielded kill task started for: {kernel_id}", "WARN")
+    log_to_file(f"Shielded kill task started for: {kernel_id}")
     try:
         mgr = get_kernel_manager()
         # 1. Try the standard Voila shutdown
@@ -27,16 +30,15 @@ async def force_kill_kernel(kernel_id):
         if hasattr(mgr, 'shutdown_kernel'):
             await asyncio.sleep(0.1) # Give it a tiny moment to process
             await asyncio.shield(mgr.shutdown_kernel(kernel_id, now=True))
-        log_to_file(f"Successfully sent shutdown command for {kernel_id}", "SUCCESS")
+        log_to_file(f"Successfully sent shutdown command for {kernel_id}")
     except Exception as e:
-        log_to_file(f"Failed to kill kernel {kernel_id}: {str(e)}", "CRITICAL")
+        log_to_file(f"Failed to kill kernel {kernel_id}: {str(e)}")
 
 def timeout_spinner(_original_get_generator):
-    # clear the file
-    with open(LOG_FILE, 'w') as _: pass
+    clear_log()
 
     async def patched_get_generator(self, *args, **kwargs):
-        log_to_file("get_generator started", "DEBUG")
+        log_to_file("get_generator started")
 
         agen = _original_get_generator(self, *args, **kwargs)
         start_time = time.time()
@@ -61,7 +63,7 @@ def timeout_spinner(_original_get_generator):
                 except (StopAsyncIteration, asyncio.CancelledError, asyncio.TimeoutError) as e:
                     elapsed = time.time() - start_time
                     if isinstance(e, asyncio.TimeoutError) or elapsed >= (timeout_seconds - 0.05):
-                        log_to_file(f"TIMEOUT DETECTED ({elapsed:.2f}s)", "ERROR")
+                        log_to_file(f"TIMEOUT DETECTED ({elapsed:.2f}s)")
 
                         # Resolve the ID
                         final_id = curr_kernel_id
@@ -74,14 +76,14 @@ def timeout_spinner(_original_get_generator):
                             asyncio.create_task(force_kill_kernel(final_id))
                             yield f"<div style='background:red; color:white; padding:10px;'>Timeout: Kernel {final_id} killed.</div>"
                         else:
-                            log_to_file("Could not find kernel ID to kill!", "CRITICAL")
+                            log_to_file("Could not find kernel ID to kill!")
                         break
                     else:
                         # Clean finish or immediate DeadKernelError
                         break
 
         except Exception as e:
-            log_to_file(f"UNCAUGHT EXCEPTION: {type(e).__name__}: {str(e)}", "CRITICAL")
+            log_to_file(f"UNCAUGHT EXCEPTION: {type(e).__name__}: {str(e)}")
             raise
 
     return patched_get_generator
