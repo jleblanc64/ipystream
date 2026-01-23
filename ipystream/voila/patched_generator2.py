@@ -43,9 +43,7 @@ async def patched_execute_cell(self, *args, **kwargs):
 
 VoilaExecutor.execute_cell = patched_execute_cell
 
-# ==========================================
-# 3. THE WATCHDOG (Generator Patch)
-# ==========================================
+
 def timeout(_original_get_generator, timeout_spinner):
     async def patched_get_generator(self, *args, **kwargs):
         log_to_file("--- WATCHDOG START ---")
@@ -83,6 +81,5 @@ def timeout(_original_get_generator, timeout_spinner):
             else:
                 log_to_file(f"UNCAUGHT EXCEPTION: {type(e).__name__}: {str(e)}")
                 raise
-
 
     return patched_get_generator
