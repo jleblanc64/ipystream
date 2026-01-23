@@ -1,5 +1,7 @@
 import asyncio
 import time
+from ipystream.voila.auth_wall_limit import KERNEL_CLEANUP_TIMEOUT_SEC
+from ipystream.voila.error_handler import html
 from ipystream.voila.patch_voila import _schedule_kernel_shutdown
 from ipystream.voila.kernel import get_kernel_manager
 
@@ -83,7 +85,11 @@ def timeout_spinner(_original_get_generator):
                         break
 
         except Exception as e:
-            log_to_file(f"UNCAUGHT EXCEPTION: {type(e).__name__}: {str(e)}")
-            raise
+            custom_html = html(e, KERNEL_CLEANUP_TIMEOUT_SEC)
+            if custom_html:
+                yield custom_html
+            else:
+                log_to_file(f"UNCAUGHT EXCEPTION: {type(e).__name__}: {str(e)}")
+                raise
 
     return patched_get_generator

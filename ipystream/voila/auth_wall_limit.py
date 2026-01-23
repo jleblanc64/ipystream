@@ -3,7 +3,6 @@ import json
 from filelock import FileLock
 from jupyter_server.services.kernels.kernelmanager import MappingKernelManager
 from tornado.web import HTTPError
-from voila.handler import VoilaHandler
 from voila import voila_kernel_manager
 
 from ipystream.voila.kernel import (
@@ -113,72 +112,3 @@ def patch(log_user_fun, token_to_user_fun):
 
         if count > 2:
             raise HTTPError(503, f"User '{user}' already has 2 running kernels")
-
-    # --- VoilaHandler 503 page ---
-    def custom_voila_write_error(self, status_code, **kwargs):
-        if status_code == 503:
-            html = f"""
-            <html>
-              <head>
-                <title>App Limit Reached</title>
-                <style>
-                  body {{
-                    font-family: Arial, sans-serif;
-                    background: #fafafa;
-                    color: #333;
-                    text-align: center;
-                    padding-top: 10%;
-                  }}
-                  .box {{
-                    display: inline-block;
-                    background: white;
-                    border: 1px solid #ccc;
-                    border-radius: 12px;
-                    padding: 30px 50px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                  }}
-                  h1 {{
-                    color: #c0392b;
-                  }}
-                </style>
-              </head>
-              <body>
-                <div class="box">
-                  <h1>App Already Open</h1>
-                  <p>You have duplicated pages of the app opened.<br>
-                     Please re-use an existing tab or close extra ones.</p>
-                  <p>Closed pages kernels are cleaned up after {KERNEL_CLEANUP_TIMEOUT_SEC} seconds</p>
-                </div>
-              </body>
-            </html>
-            """
-            self.set_status(status_code)
-            self.set_header("Content-Type", "text/html")
-            self.finish(html)
-        elif status_code == 404:
-            html = f"""
-            <html>
-            <head><title>Not Found</title></head>
-            <body style="font-family:sans-serif;text-align:center;margin-top:10%;">
-                <h1>404: Page Not Found</h1>
-                <p>The page you're looking for doesn't exist or the session expired.</p>
-                <button onclick="goHome()">Go Home</button>
-            
-                <script>
-                  function goHome() {{
-                    const query = window.location.search;
-                    const target = '/' + (query ? query : '');
-                    window.location.href = target;
-                  }}
-                </script>
-            </body>
-            </html>
-            """
-            self.set_status(status_code)
-            self.set_header("Content-Type", "text/html")
-            self.finish(html)
-
-        else:
-            super(VoilaHandler, self).write_error(status_code, **kwargs)
-
-    VoilaHandler.write_error = custom_voila_write_error

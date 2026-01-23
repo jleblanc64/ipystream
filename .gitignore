@@ -7,3 +7,4 @@ kernel_to_user.json
 tests/voila/jupyter.ipynb
 tests/voila_raw_widgets/jupyter.ipynb
 tests/voila_stuck_spinner/jupyter.ipynb
+tests/voila_token/jupyter.ipynb
