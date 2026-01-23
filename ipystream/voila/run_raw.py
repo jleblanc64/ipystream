@@ -8,9 +8,10 @@ import sys
 from pathlib import Path
 
 def run(
-    disable_logging,
-    POOL_SIZE=2,
-    use_xpython=False,
+    disable_logging=True,
+    POOL_SIZE=1,
+    MAX_KERNELS=8,
+    use_xpython=True,
     enforce_PARAM_KEY_TOKEN=False,
     log_user_fun=None,
     token_to_user_fun=None,
@@ -22,7 +23,7 @@ def run(
         patch_solara_comm()
 
     patched_generator.patch_voila_get_generator(enforce_PARAM_KEY_TOKEN)
-    auth_wall_limit.patch(log_user_fun, token_to_user_fun)
+    auth_wall_limit.patch(log_user_fun, token_to_user_fun, MAX_KERNELS)
 
     NOTEBOOK = "jupyter.ipynb"
 

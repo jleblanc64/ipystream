@@ -14,12 +14,11 @@ from ipystream.voila.kernel import (
 )
 from ipystream.voila.utils import get_token_from_headers
 
-MAX_KERNELS = 8
 KERNEL_CLEANUP_TIMEOUT_SEC = 20
 FILE_LOCK = "kernel.lock"
 
 
-def patch(log_user_fun, token_to_user_fun):
+def patch(log_user_fun, token_to_user_fun, MAX_KERNELS):
     # --- Monkey-patch shutdown_kernel to block external calls ---
     def controlled_shutdown_kernel(self, kernel_id, **kwargs):
         return asyncio.ensure_future(asyncio.sleep(0))  # Dummy completed awaitable
