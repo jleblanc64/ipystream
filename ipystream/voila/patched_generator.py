@@ -13,38 +13,39 @@ import json
 from voila.handler import VoilaHandler
 from tornado.web import HTTPError
 
-from ipystream.voila.patched_generator2 import timeout_spinner, timeout_seconds
+from ipystream.voila.patched_generator2 import timeout
 from ipystream.voila.utils import get_token_from_headers, PARAM_KEY_TOKEN
 
-injection = (
-    "<style>"
-    "body.jp-Notebook, .jp-Notebook { background-color: white !important; color: black !important; }"
-    ".jp-Cell { background-color: white !important; color: black !important; }"
-    "label, div, span, p, li, th, td, pre { color: black !important; }"
-    "select { background-color: white !important; color: black !important; }"
-    ".leaflet-control-legend { background-color: white !important; color: black !important; }"
-    "#voila-timeout-msg { "
-    "   display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); "
-    "   background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; "
-    "   padding: 15px 30px; border-radius: 4px; z-index: 10001; font-family: sans-serif;"
-    "}"
-    "</style>"
-    "<div id='voila-timeout-msg'>voila timeout, check your connection</div>"
-    "<script>"
-    "(function() {"
-    "    setTimeout(function() {"
-    "        var loader = document.querySelector('.voila-spinner, #loading, .jp-Spinner'); "
-    "        if (loader && window.getComputedStyle(loader).display !== 'none') {"
-    "            document.getElementById('voila-timeout-msg').style.display = 'block';"
-    "            loader.style.display = 'none';  /* FIX: Hide spinner on timeout */"
-    "        }"
-    f"    }}, {(timeout_seconds + 5) * 1000});"
-    "})();"
-    "</script>"
-)
+def build_injection(timeout_spinner):
+    return (
+        "<style>"
+        "body.jp-Notebook, .jp-Notebook { background-color: white !important; color: black !important; }"
+        ".jp-Cell { background-color: white !important; color: black !important; }"
+        "label, div, span, p, li, th, td, pre { color: black !important; }"
+        "select { background-color: white !important; color: black !important; }"
+        ".leaflet-control-legend { background-color: white !important; color: black !important; }"
+        "#voila-timeout-msg { "
+        "   display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); "
+        "   background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; "
+        "   padding: 15px 30px; border-radius: 4px; z-index: 10001; font-family: sans-serif;"
+        "}"
+        "</style>"
+        "<div id='voila-timeout-msg'>voila timeout, check your connection</div>"
+        "<script>"
+        "(function() {"
+        "    setTimeout(function() {"
+        "        var loader = document.querySelector('.voila-spinner, #loading, .jp-Spinner'); "
+        "        if (loader && window.getComputedStyle(loader).display !== 'none') {"
+        "            document.getElementById('voila-timeout-msg').style.display = 'block';"
+        "            loader.style.display = 'none';  /* FIX: Hide spinner on timeout */"
+        "        }"
+        f"    }}, {(timeout_spinner + 5) * 1000});"
+        "})();"
+        "</script>"
+    )
 
 
-def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN):
+def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner):
     # --- Patch VoilaHandler to require ?user=... ---
     _original_prepare = VoilaHandler.prepare
 
@@ -124,7 +125,7 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN):
         self.set_header("Expires", "0")
 
         # FIX: Yield injection here so it only happens once per page load
-        yield injection
+        yield build_injection(timeout_spinner)
 
         try:
             current_notebook_data: Dict = self.kernel_manager.notebook_data.get(
@@ -280,4 +281,4 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN):
         # --- END of original code -------------
 
     # Bind correctly as instance method
-    VoilaHandler.get_generator = timeout_spinner(patched_get_generator)
+    VoilaHandler.get_generator = timeout(patched_get_generator, timeout_spinner)
