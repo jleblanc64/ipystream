@@ -1,9 +1,11 @@
-from datetime import datetime
 from tornado.web import StaticFileHandler
-from ipystream.voila.patched_generator2 import LOG_FILE
+
+from ipystream.voila import utils_log
+from ipystream.voila.utils_log import log_to_file, clear_log
 
 
 def slow_connection():
+    utils_log.ENABLE_LOG = True
     clear_log()
 
     _original_write = StaticFileHandler.write
@@ -27,15 +29,3 @@ def slow_connection():
 
     StaticFileHandler.prepare = patched_prepare
     StaticFileHandler.write = patched_write
-
-def clear_log():
-    try:
-        with open(LOG_FILE, 'w') as _: pass
-    except: pass
-
-def log_to_file(message):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-    try:
-        with open(LOG_FILE, "a") as f:
-            f.write(f"[{timestamp}] {message}\n")
-    except: pass

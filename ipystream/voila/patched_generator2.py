@@ -1,33 +1,12 @@
 import asyncio
 import subprocess
 import time
-from datetime import datetime
-
 from ipystream.voila.auth_wall_limit import KERNEL_CLEANUP_TIMEOUT_SEC
 from ipystream.voila.error_handler import html
 from ipystream.voila.patch_voila import _schedule_kernel_shutdown
 from ipystream.voila.kernel import get_kernel_manager
+from ipystream.voila.utils_log import log_to_file, clear_log
 
-LOG_FILE = "/home/charles/Downloads/log.txt"
-ENABLE_LOG = False
-
-def clear_log():
-    if not ENABLE_LOG:
-        return
-
-    try:
-        with open(LOG_FILE, 'w') as _: pass
-    except: pass
-
-def log_to_file(message):
-    if not ENABLE_LOG:
-        return
-
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-    try:
-        with open(LOG_FILE, "a") as f:
-            f.write(f"[{timestamp}] {message}\n")
-    except: pass
 
 # TODO sometimes kernel leak and are not killed. kill them even if busy after long time in cleanup_dead_kernels()
 async def force_kill_kernel(kernel_id):
