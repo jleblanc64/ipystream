@@ -22,6 +22,7 @@ def log_to_file(message):
     #         f.write(f"[{timestamp}] {message}\n")
     # except: pass
 
+# TODO sometimes kernel leak and are not killed. kill them even if busy after long time in cleanup_dead_kernels()
 async def force_kill_kernel(kernel_id):
     log_to_file(f"Shielded kill task started for: {kernel_id}")
     try:
