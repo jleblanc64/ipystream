@@ -36,10 +36,6 @@ def patch(log_user_fun, token_to_user_fun, MAX_KERNELS):
         async def _patched_get_rendered_notebook(
             self, notebook_name: str, extra_kernel_env_variables: dict = {}, **kwargs
         ):
-            running = self.list_kernel_ids()
-            if len(running) >= MAX_KERNELS:
-                raise HTTPError(503)
-
             token = None
             user = None
             headers = extra_kernel_env_variables.get("headers")
@@ -54,6 +50,10 @@ def patch(log_user_fun, token_to_user_fun, MAX_KERNELS):
                 if user:
                     data = _load_kernel_to_user()
                     await check_user_kernel_conflict(user, data)
+
+            runnings = self.list_kernel_ids()
+            if len(runnings) >= MAX_KERNELS:
+                raise HTTPError(504)
 
             # Call original method to get preheated kernel
             (
