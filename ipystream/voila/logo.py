@@ -2,7 +2,7 @@ def get_logo_html(_LOGO_B64):
     return (
         f"""
         <style>
-            /* 1. CSS BLUNT FORCE: Hide the loading container text and the H2 specifically */
+            /* 1. HIDE LOADING STATUS */
             #loading_text, 
             .voila-spinner-status, 
             .jp-Spinner-label, 
@@ -12,20 +12,26 @@ def get_logo_html(_LOGO_B64):
                 opacity: 0 !important;
             }}
 
-            /* 2. LOGO POSITIONING (Fixed for your template) */
+            /* 2. ENHANCED LOGO STYLING */
             #voila-logo-wrapper {{ display: none; }}
             #voila-logo {{
                 position: absolute;
-                top: 16px;
-                right: 20px;
-                height: 80px;
+                top: 20px;          /* Slightly more breathing room */
+                right: 25px;
+                height: 120px;      /* INCREASED SIZE FROM 80px */
+                width: auto;
                 z-index: 10000;
                 background: white;
-                padding: 5px;
-                border-radius: 8px;
+                padding: 10px;      /* Increased padding for the larger size */
+                border-radius: 12px;
                 border: 1px solid #ddd;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Softer shadow for the larger element */
             }}
-            #rendered_cells {{ position: relative !important; }}
+            
+            /* Ensure the notebook container allows absolute positioning for the logo */
+            #rendered_cells {{ 
+                position: relative !important; 
+            }}
         </style>
 
         <div id="voila-logo-wrapper">
@@ -34,10 +40,9 @@ def get_logo_html(_LOGO_B64):
 
         <script>
         (function() {{
-            // 3. JAVASCRIPT HIJACK: Overwrite Voila's update function so it does NOTHING
+            // 3. JAVASCRIPT HIJACK
             window.update_loading_text = function(cell_index, cell_count, text) {{
-                console.log("Voila tried to show text, but we blocked it.");
-                // We leave this empty so no text is ever injected
+                // Muted
             }};
             window.voila_process = window.update_loading_text;
 
