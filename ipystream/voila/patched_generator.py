@@ -16,32 +16,51 @@ from tornado.web import HTTPError
 from ipystream.voila.patched_generator2 import timeout
 from ipystream.voila.utils import get_token_from_headers, PARAM_KEY_TOKEN
 
-def build_injection(timeout_spinner):
+import base64
+
+def build_injection(timeout_spinner, logo_path="/home/charles/Downloads/logo.png"):
+    try:
+        with open("/home/charles/Downloads/logo.png", "rb") as _f:
+            _LOGO_B64 = base64.b64encode(_f.read()).decode()
+        logo_html = (
+            f"<img id='voila-logo' src='data:image/png;base64,{_LOGO_B64}' "
+            "style='position:absolute;top:16px;right:20px;height:80px;z-index:10000;"
+            "pointer-events:none;"
+            "border:4px solid #333;"
+            "border-radius:8px;"
+            "padding:6px;"
+            "background:white;"
+            "box-shadow:0 2px 8px rgba(0,0,0,0.15);' />"
+        )
+    except Exception:
+        logo_html = ""
+
     return (
-        "<style>"
-        "body.jp-Notebook, .jp-Notebook { background-color: white !important; color: black !important; }"
-        ".jp-Cell { background-color: white !important; color: black !important; }"
-        "label, div, span, p, li, th, td, pre { color: black !important; }"
-        "select { background-color: white !important; color: black !important; }"
-        ".leaflet-control-legend { background-color: white !important; color: black !important; }"
-        "#voila-timeout-msg { "
-        "   display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); "
-        "   background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; "
-        "   padding: 15px 30px; border-radius: 4px; z-index: 10001; font-family: sans-serif;"
-        "}"
-        "</style>"
-        "<div id='voila-timeout-msg'>voila timeout, check your connection</div>"
-        "<script>"
-        "(function() {"
-        "    setTimeout(function() {"
-        "        var loader = document.querySelector('.voila-spinner, #loading, .jp-Spinner'); "
-        "        if (loader && window.getComputedStyle(loader).display !== 'none') {"
-        "            document.getElementById('voila-timeout-msg').style.display = 'block';"
-        "            loader.style.display = 'none';  /* FIX: Hide spinner on timeout */"
-        "        }"
-        f"    }}, {(timeout_spinner + 5) * 1000});"
-        "})();"
-        "</script>"
+            "<style>"
+            "body.jp-Notebook, .jp-Notebook { background-color: white !important; color: black !important; }"
+            ".jp-Cell { background-color: white !important; color: black !important; }"
+            "label, div, span, p, li, th, td, pre { color: black !important; }"
+            "select { background-color: white !important; color: black !important; }"
+            ".leaflet-control-legend { background-color: white !important; color: black !important; }"
+            "#voila-timeout-msg { "
+            "   display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); "
+            "   background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; "
+            "   padding: 15px 30px; border-radius: 4px; z-index: 10001; font-family: sans-serif;"
+            "}"
+            "</style>"
+            + logo_html +
+            "<div id='voila-timeout-msg'>voila timeout, check your connection</div>"
+            "<script>"
+            "(function() {"
+            "    setTimeout(function() {"
+            "        var loader = document.querySelector('.voila-spinner, #loading, .jp-Spinner'); "
+            "        if (loader && window.getComputedStyle(loader).display !== 'none') {"
+            "            document.getElementById('voila-timeout-msg').style.display = 'block';"
+            "            loader.style.display = 'none';"
+            "        }"
+            f"    }}, {(timeout_spinner + 5) * 1000});"
+            "})();"
+            "</script>"
     )
 
 
