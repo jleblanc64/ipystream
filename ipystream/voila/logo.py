@@ -18,7 +18,7 @@ def get_logo_html(_LOGO_B64):
                 position: absolute;
                 top: 20px;          /* Slightly more breathing room */
                 right: 25px;
-                height: 120px;      /* INCREASED SIZE FROM 80px */
+                height: 90px;      /* INCREASED SIZE FROM 80px */
                 width: auto;
                 z-index: 10000;
                 background: white;
