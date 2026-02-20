@@ -19,9 +19,12 @@ from ipystream.voila.utils import get_token_from_headers, PARAM_KEY_TOKEN
 
 import base64
 
-def build_injection(timeout_spinner, logo_path="/home/charles/Downloads/logo.png"):
+def build_injection(timeout_spinner):
+    current_script_dir = os.path.dirname(os.path.abspath(__file__))
+    logo_path = os.path.join(current_script_dir, "resources", "logo.png")
+
     try:
-        with open("/home/charles/Downloads/logo.png", "rb") as _f:
+        with open(logo_path, "rb") as _f:
             _LOGO_B64 = base64.b64encode(_f.read()).decode()
         logo_html = get_logo_html(_LOGO_B64)
     except Exception:
