@@ -13,6 +13,7 @@ import json
 from voila.handler import VoilaHandler
 from tornado.web import HTTPError
 
+from ipystream.voila.logo import get_logo_html
 from ipystream.voila.patched_generator2 import timeout
 from ipystream.voila.utils import get_token_from_headers, PARAM_KEY_TOKEN
 
@@ -22,16 +23,7 @@ def build_injection(timeout_spinner, logo_path="/home/charles/Downloads/logo.png
     try:
         with open("/home/charles/Downloads/logo.png", "rb") as _f:
             _LOGO_B64 = base64.b64encode(_f.read()).decode()
-        logo_html = (
-            f"<img id='voila-logo' src='data:image/png;base64,{_LOGO_B64}' "
-            "style='position:absolute;top:16px;right:20px;height:80px;z-index:10000;"
-            "pointer-events:none;"
-            "border:4px solid #333;"
-            "border-radius:8px;"
-            "padding:6px;"
-            "background:white;"
-            "box-shadow:0 2px 8px rgba(0,0,0,0.15);' />"
-        )
+        logo_html = get_logo_html(_LOGO_B64)
     except Exception:
         logo_html = ""
 
