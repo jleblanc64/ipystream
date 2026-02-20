@@ -1,30 +1,60 @@
 def get_logo_html(_LOGO_B64):
     return (
-        # 1. Create the logo hidden so it doesn't 'flash' in the wrong spot
-        f"<div id='voila-logo-wrapper' style='display:none;'>"
-        f"  <img id='voila-logo' src='data:image/png;base64,{_LOGO_B64}' "
-        "    style='position:absolute; top:16px; right:20px; height:80px; z-index:10000; "
-        "    pointer-events:none; border:4px solid #333; border-radius:8px; "
-        "    padding:6px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.15);' />"
-        "</div>"
+        f"""
+        <style>
+            /* 1. CSS BLUNT FORCE: Hide the loading container text and the H2 specifically */
+            #loading_text, 
+            .voila-spinner-status, 
+            .jp-Spinner-label, 
+            #loading h2 {{
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+            }}
 
-        # 2. Use Javascript to relocate it to the specific scrolling div from your source
-        "<script>"
-        "(function() {"
-        "    var tryMove = setInterval(function() {"
-        "        /* Target the specific ID found in your source code */"
-        "        var scrollContainer = document.getElementById('rendered_cells');"
-        "        var logo = document.getElementById('voila-logo-wrapper');"
-        "        "
-        "        if (scrollContainer && logo) {"
-        "            /* Ensure the container is the 'anchor' for the absolute logo */"
-        "            scrollContainer.style.position = 'relative';"
-        "            /* Prepend puts it at the very top of the scrollable content */"
-        "            scrollContainer.prepend(logo);"
-        "            logo.style.display = 'block';"
-        "            clearInterval(tryMove);"
-        "        }"
-        "    }, 100);" # Check every 100ms
-        "})();"
-        "</script>"
+            /* 2. LOGO POSITIONING (Fixed for your template) */
+            #voila-logo-wrapper {{ display: none; }}
+            #voila-logo {{
+                position: absolute;
+                top: 16px;
+                right: 20px;
+                height: 80px;
+                z-index: 10000;
+                background: white;
+                padding: 5px;
+                border-radius: 8px;
+                border: 1px solid #ddd;
+            }}
+            #rendered_cells {{ position: relative !important; }}
+        </style>
+
+        <div id="voila-logo-wrapper">
+            <img id="voila-logo" src="data:image/png;base64,{_LOGO_B64}" />
+        </div>
+
+        <script>
+        (function() {{
+            // 3. JAVASCRIPT HIJACK: Overwrite Voila's update function so it does NOTHING
+            window.update_loading_text = function(cell_index, cell_count, text) {{
+                console.log("Voila tried to show text, but we blocked it.");
+                // We leave this empty so no text is ever injected
+            }};
+            window.voila_process = window.update_loading_text;
+
+            // 4. LOGO MOVER
+            var moveAttempts = 0;
+            var logoMover = setInterval(function() {{
+                var scrollContainer = document.getElementById('rendered_cells');
+                var logo = document.getElementById('voila-logo-wrapper');
+                if (scrollContainer && logo) {{
+                    scrollContainer.prepend(logo);
+                    logo.style.display = 'block';
+                    clearInterval(logoMover);
+                }}
+                moveAttempts++;
+                if (moveAttempts > 100) clearInterval(logoMover);
+            }}, 100);
+        }})();
+        </script>
+        """
     )
