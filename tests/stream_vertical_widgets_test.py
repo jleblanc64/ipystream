@@ -3,7 +3,7 @@ from typing import Callable
 import pytest
 from ipywidgets import HTML, RadioButtons
 from ipystream.stream import Stream, WidgetCurrentsChildren
-from tests.utils import wait_stream, wait_stream_async
+from tests.utils import wait_stream_async
 
 
 def drop(v):
