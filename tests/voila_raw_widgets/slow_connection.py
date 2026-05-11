@@ -15,7 +15,8 @@ def slow_connection():
         path = self.request.path
         log_to_file(f"prepare(): {path}")
 
-        if "widget" in path: raise Exception("a")
+        if "widget" in path:
+            raise Exception("a")
 
         return _original_prepare(self)
 
@@ -23,7 +24,8 @@ def slow_connection():
         path = self.request.path
         log_to_file(f"write(): {path}")
 
-        if "widget" in path: raise Exception("a")
+        if "widget" in path:
+            raise Exception("a")
 
         return _original_write(self, chunk)
 

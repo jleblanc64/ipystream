@@ -20,7 +20,8 @@ def get(fun, btn, out):
 
     def on_click_action(b):
         nonlocal is_running
-        if is_running: return # Exit if already active
+        if is_running:
+            return  # Exit if already active
 
         is_running = True
         b.disabled = True
@@ -42,7 +43,7 @@ def get(fun, btn, out):
                 time.sleep(0.2)
                 spinner_html.layout.display = "none"
                 b.disabled = False
-                is_running = False # Release the Guard
+                is_running = False  # Release the Guard
 
         threading.Thread(target=run_logic, daemon=True).start()
 

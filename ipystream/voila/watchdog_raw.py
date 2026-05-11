@@ -1,5 +1,6 @@
 from IPython.display import display, HTML
 
+
 def display_voila_watchdog(timeout_ms=6000):
     watchdog_html = f"""
     <style>

@@ -9,6 +9,7 @@ from ipystream.voila.kernel import get_kernel_manager
 from ipystream.voila.patch_voila import _schedule_kernel_shutdown
 from ipystream.voila.utils_log import log_to_file
 
+
 def kill_kernel(kernel_id):
     if not kernel_id or str(kernel_id) == "None":
         return
@@ -21,12 +22,15 @@ def kill_kernel(kernel_id):
     except Exception as e:
         log_to_file(f"[KILL] Error during cleanup: {e}")
 
+
 _original_execute_cell = VoilaExecutor.execute_cell
+
 
 async def patched_execute_cell(self, *args, **kwargs):
     # Retrieve ID early
-    kid = getattr(self, "kernel_id", None) or \
-          (getattr(self.km, "kernel_id", None) if hasattr(self, "km") else None)
+    kid = getattr(self, "kernel_id", None) or (
+        getattr(self.km, "kernel_id", None) if hasattr(self, "km") else None
+    )
 
     try:
         return await _original_execute_cell(self, *args, **kwargs)
@@ -40,6 +44,7 @@ async def patched_execute_cell(self, *args, **kwargs):
 
         # Return the cell object to prevent the 'Error Page' from rendering
         return args[0] if len(args) > 0 else None
+
 
 VoilaExecutor.execute_cell = patched_execute_cell
 
@@ -65,7 +70,9 @@ def timeout(_original_get_generator, timeout_spinner):
 
                 try:
                     # Request next chunk
-                    yield await asyncio.wait_for(agen.__anext__(), timeout=max(0.01, remaining))
+                    yield await asyncio.wait_for(
+                        agen.__anext__(), timeout=max(0.01, remaining)
+                    )
                 except StopAsyncIteration:
                     break
 

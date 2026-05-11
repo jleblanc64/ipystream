@@ -7,6 +7,7 @@ import site
 import sys
 from pathlib import Path
 
+
 def run(
     disable_logging=True,
     POOL_SIZE=1,
@@ -23,7 +24,9 @@ def run(
         register_local_xpython()
         patch_solara_comm()
 
-    patched_generator.patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner)
+    patched_generator.patch_voila_get_generator(
+        enforce_PARAM_KEY_TOKEN, timeout_spinner
+    )
     auth_wall_limit.patch(log_user_fun, token_to_user_fun, MAX_KERNELS)
 
     NOTEBOOK = "jupyter.ipynb"
@@ -58,6 +61,7 @@ def run(
         os.dup2(devnull, 2)
 
     voila_app.start()
+
 
 def register_local_xpython():
     # 1. Discover the current Python path
@@ -100,6 +104,7 @@ def register_local_xpython():
 
     print(f"✅ Registered kernelspec at: {kernel_json_path}")
     print(f"🚀 Using command: {' '.join(executable_path)}")
+
 
 def patch_solara_comm():
     try:

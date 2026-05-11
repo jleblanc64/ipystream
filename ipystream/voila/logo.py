@@ -1,6 +1,5 @@
 def get_logo_html(_LOGO_B64):
-    return (
-        f"""
+    return f"""
         <style>
             /* 1. HIDE LOADING STATUS */
             #loading_text, 
@@ -62,4 +61,3 @@ def get_logo_html(_LOGO_B64):
         }})();
         </script>
         """
-    )

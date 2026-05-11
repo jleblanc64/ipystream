@@ -51,10 +51,10 @@ def popup_button():
                         children=[
                             hello_html,
                             v.Layout(justify_center=True, children=[toggle_btn]),
-                        ]
+                        ],
                     ),
                     v.CardActions(children=[v.Spacer(), close_text_btn]),
-                ]
+                ],
             )
         ],
     )

@@ -1,5 +1,6 @@
 import asyncio
 
+
 async def wait_stream_async(i, l):
     for _ in range(15):
         if l.stream_update_done_count == i:
