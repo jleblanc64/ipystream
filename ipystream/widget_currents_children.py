@@ -7,6 +7,7 @@ from ipystream.utils import is_internal_counter, proxy_update_display
 class Handle(BaseModel):
     display_id: str
     cache: dict
+    existing: Any | None
 
     def update(self, widget):
         proxy_update_display(widget, self.display_id, self.cache)
@@ -44,11 +45,12 @@ class WidgetCurrentsChildren(BaseModel):
 
     def display_or_update(self, widget) -> Handle:
         id = self.display_id(self.current_idx)
-        h = Handle(idx=self.current_idx, w=self, display_id=id, cache=self.cache)
+        h = Handle(idx=self.current_idx, w=self, display_id=id, cache=self.cache, existing=None)
 
         is_update = self.current_idx < len(self.currents)
         if is_update:
             existing = self.currents[self.current_idx]
+            h.existing = existing
             # in this case re use existing, as it is certainly observed (eg. SelectMultiple, RadioButtons)
             if hasattr(existing, "options") and hasattr(existing, "value"):
                 opts = widget.options
