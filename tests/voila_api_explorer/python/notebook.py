@@ -1,19 +1,17 @@
 import requests as r
 from IPython.core.display_functions import display
+from ipydatagrid import DataGrid
 from ipywidgets import widgets, HTML
 from ipystream.voila import spinned_print_out
 from ipystream.voila.spinned_print_out import get_spinner_html
 from tests.voila_api_explorer.python.utils import load_creds
-
+import pandas as pd
 
 def run():
+    # get header
     u, p = load_creds("/home/charles/Desktop/SEP.properties")
     url = "https://eu-north-1-api.dev.sympheny.com/backoffice/auth/ext/token"
-    data = {"email": u, "password": p}
-    headers = {"content-type": "application/json"}
-
-    resp = r.post(url, headers=headers, json=data)
-    jwt = resp.json()["access_token"]
+    jwt = r.post(url, json={"email": u, "password": p}).json()["access_token"]
     h = {"authorization": f"Bearer {jwt}", "content-type": "application/json"}
 
     # list projects
@@ -42,22 +40,21 @@ def run():
         project_id = dropdown_solars.value
         project_name = [x[0] for x in projects if x[1] == project_id][0]
         out.append_display_data(f"Selected project: {project_name}")
-        out.append_display_data(project_id)
-        out.append_display_data(dropdown_solars.options)
+
         analyses = r.get(f"{be}projects/{project_id}", headers=h).json()["data"]["analyses"]
         analyses = [x["analysisGuid"] for x in analyses]
-
-
         scenarios = [x for y in analyses for x in r.get(f"{be}analysis/{y}", headers=h).json()["data"]["scenarios"]]
-        out.append_display_data(scenarios)
+
+        df = pd.DataFrame(scenarios)
+        datagrid = DataGrid(df, selection_mode="row", layout={"height": "180px"})
+        datagrid.auto_fit_columns = True
+        out.append_display_data(datagrid)
 
     def f2(out):
         out.append_display_data("hello world")
-
 
     spinned_print_out.get(f, button_create, vbox, spinner_html, buttons)
     spinned_print_out.get(f2, button2, vbox, spinner_html, buttons)
     space = HTML("<br/>")
     display(space, widgets.HBox(buttons))
     display(space, spinner_html, vbox)
-
