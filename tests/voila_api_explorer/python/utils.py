@@ -1,15 +1,10 @@
-from tests.voila_api_explorer.python.utils_properties import Properties
+from jproperties import Properties
 
 def load_creds(path: str) -> tuple[str, str]:
-    configs = load_config(path)
-    username = configs.get("username").data
-    password = configs.get("password").data
-
-    return username, password
-
-def load_config(path: str) -> Properties:
-    configs = Properties()
+    props = Properties()
     with open(path, "rb") as f:
-        configs.load(f)
+        props.load(f)
 
-    return configs
+    username = props.get("username").data
+    password = props.get("password").data
+    return username, password

@@ -19,6 +19,7 @@ def run():
     projects = [(x["projectName"], x["projectGuid"]) for x in projects]
     projects.sort(key=lambda x: x[0])
 
+    # fill dropdown with projects
     dropdown_solars = widgets.Dropdown(description='Projects:', layout=widgets.Layout(width='450px', height='35px', margin='5px 40px 0 0'))
     dropdown_solars.options = projects
     dropdown_solars.value = projects[0][1]
