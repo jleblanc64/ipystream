@@ -2,8 +2,7 @@ import requests as r
 from IPython.core.display_functions import display
 from ipydatagrid import DataGrid
 from ipywidgets import widgets, HTML
-from ipystream.voila import spinned_print_out
-from ipystream.voila.spinned_print_out import get_spinner_html
+from ipystream.voila.spinned_print_out import get_spinner_html, Spinned
 from tests.voila_api_explorer.python.utils import load_creds
 import pandas as pd
 
@@ -25,17 +24,22 @@ def run():
     dropdown_solars.value = projects[0][1]
     display(dropdown_solars)
 
-    # spinner
-    vbox = widgets.VBox()
-    spinner_html = get_spinner_html()
-
+    # buttons
     button_create = widgets.Button(description="1) List scenarios in Project", layout=widgets.Layout(width="250px"))
     button2 = widgets.Button(description="2) Button 2", layout=widgets.Layout(width="250px"))
 
+    space = HTML("<br/>")
     buttons = [button_create, button2]
     for btn in buttons:
         btn.layout.margin = '0 30px 0 0'
+    display(space, widgets.HBox([button_create, button2]))
 
+    # spinner area display
+    vbox = widgets.VBox()
+    spinner_html = get_spinner_html()
+    display(space, spinner_html, vbox)
+
+    # link spinner area, buttons and functions
     def f(out):
         project_id = dropdown_solars.value
         project_name = [x[0] for x in projects if x[1] == project_id][0]
@@ -53,11 +57,6 @@ def run():
     def f2(out):
         out.print("hello world")
 
-    spinned_print_out.get(f, button_create, vbox, spinner_html, buttons)
-    spinned_print_out.get(f2, button2, vbox, spinner_html, buttons)
-    space = HTML("<br/>")
-    display(space, widgets.HBox(buttons))
-    display(space, spinner_html, vbox)
-
-def print_out(out, msg):
-    out.append_stdout(f"{msg}\n")
+    spinned = Spinned(vbox, spinner_html)
+    spinned.get(f, button_create)
+    spinned.get(f2, button2)

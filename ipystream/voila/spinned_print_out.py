@@ -187,58 +187,65 @@ class LiveOutput:
         else:
             self.append_display_data(obj)
 
-# --- 5. Core Controller ---
-def get(fun, btn, vbox: widgets.VBox, spinner_html, all_buttons):
-    is_running = False
+# --- 5. Spinned Instance ---
+class Spinned:
+    def __init__(self, vbox: widgets.VBox, spinner_html):
+        self.vbox = vbox
+        self.spinner_html = spinner_html
+        self.all_buttons = []
 
-    def on_click_action(b):
-        nonlocal is_running
-        if is_running: return
+    def get(self, fun, btn):
+        self.all_buttons.append(btn)
+        is_running = False
 
-        is_running = True
-
-        vbox.children = ()
-        vbox.remove_class("custom-code-container")
-
-        for button in all_buttons:
-            button.disabled = True
-
-        start_time = time.time()
-        lock = threading.Lock()
-        out = LiveOutput(vbox, lock)
-
-        def update_timer():
-            while is_running:
-                spinner_html.value = spinner_template.format(
-                    vis="inline-block",
-                    label="Running:",
-                    t_str=compute_elapsed(start_time)
-                )
-                time.sleep(1)
-
-        def run_logic():
+        def on_click_action(b):
             nonlocal is_running
-            try:
-                fun(out)
-            except Exception:
-                stack_trace = traceback.format_exc()
-                error_html = f"""
-                <div class="console-error-wrapper">
-                    <pre class="stacktrace-text">{stack_trace}</pre>
-                </div>
-                """
-                out.append_display_data(HTML(error_html))
-            finally:
-                spinner_html.value = spinner_template.format(
-                    vis="none",
-                    label="Finished in",
-                    t_str=compute_elapsed(start_time)
-                )
-                for button in all_buttons:
-                    button.disabled = False
-                is_running = False
+            if is_running: return
 
-        threading.Thread(target=update_timer, daemon=True).start()
-        threading.Thread(target=run_logic, daemon=True).start()
+            is_running = True
 
-    btn.on_click(on_click_action)
+            self.vbox.children = ()
+            self.vbox.remove_class("custom-code-container")
+
+            for button in self.all_buttons:
+                button.disabled = True
+
+            start_time = time.time()
+            lock = threading.Lock()
+            out = LiveOutput(self.vbox, lock)
+
+            def update_timer():
+                while is_running:
+                    self.spinner_html.value = spinner_template.format(
+                        vis="inline-block",
+                        label="Running:",
+                        t_str=compute_elapsed(start_time)
+                    )
+                    time.sleep(1)
+
+            def run_logic():
+                nonlocal is_running
+                try:
+                    fun(out)
+                except Exception:
+                    stack_trace = traceback.format_exc()
+                    error_html = f"""
+                    <div class="console-error-wrapper">
+                        <pre class="stacktrace-text">{stack_trace}</pre>
+                    </div>
+                    """
+                    out.append_display_data(HTML(error_html))
+                finally:
+                    self.spinner_html.value = spinner_template.format(
+                        vis="none",
+                        label="Finished in",
+                        t_str=compute_elapsed(start_time)
+                    )
+                    for button in self.all_buttons:
+                        button.disabled = False
+                    is_running = False
+
+            threading.Thread(target=update_timer, daemon=True).start()
+            threading.Thread(target=run_logic, daemon=True).start()
+
+        btn.on_click(on_click_action)
