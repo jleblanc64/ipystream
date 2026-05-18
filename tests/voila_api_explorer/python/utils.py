@@ -1,5 +1,6 @@
 from jproperties import Properties
 
+
 def load_creds(path: str) -> tuple[str, str]:
     props = Properties()
     with open(path, "rb") as f:

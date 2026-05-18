@@ -6,6 +6,7 @@ from ipystream.voila.spinned_print_out import get_spinner_html, Spinned
 from tests.voila_api_explorer.python.utils import load_creds
 import pandas as pd
 
+
 def run():
     # get header
     u, p = load_creds("/home/charles/Desktop/SEP.properties")
@@ -20,19 +21,26 @@ def run():
     projects.sort(key=lambda x: x[0])
 
     # fill dropdown with projects
-    dropdown_solars = widgets.Dropdown(description='Projects:', layout=widgets.Layout(width='450px', height='35px', margin='5px 40px 0 0'))
+    dropdown_solars = widgets.Dropdown(
+        description="Projects:",
+        layout=widgets.Layout(width="450px", height="35px", margin="5px 40px 0 0"),
+    )
     dropdown_solars.options = projects
     dropdown_solars.value = projects[0][1]
     display(dropdown_solars)
 
     # buttons
-    button_create = widgets.Button(description="1) List scenarios in Project", layout=widgets.Layout(width="250px"))
-    button2 = widgets.Button(description="2) Button 2", layout=widgets.Layout(width="250px"))
+    button_create = widgets.Button(
+        description="1) List scenarios in Project", layout=widgets.Layout(width="250px")
+    )
+    button2 = widgets.Button(
+        description="2) Button 2", layout=widgets.Layout(width="250px")
+    )
 
     space = HTML("<br/>")
     buttons = [button_create, button2]
     for btn in buttons:
-        btn.layout.margin = '0 30px 0 0'
+        btn.layout.margin = "0 30px 0 0"
     display(space, widgets.HBox(buttons))
 
     # spinner area display
@@ -46,9 +54,15 @@ def run():
         project_name = [x[0] for x in projects if x[1] == project_id][0]
         out.print(f"Selected project: {project_name}")
 
-        analyses = r.get(f"{be}projects/{project_id}", headers=h).json()["data"]["analyses"]
+        analyses = r.get(f"{be}projects/{project_id}", headers=h).json()["data"][
+            "analyses"
+        ]
         analyses = [x["analysisGuid"] for x in analyses]
-        scenarios = [x for y in analyses for x in r.get(f"{be}analysis/{y}", headers=h).json()["data"]["scenarios"]]
+        scenarios = [
+            x
+            for y in analyses
+            for x in r.get(f"{be}analysis/{y}", headers=h).json()["data"]["scenarios"]
+        ]
 
         df = pd.DataFrame(scenarios)
         datagrid = DataGrid(df, selection_mode="row", layout={"height": "180px"})

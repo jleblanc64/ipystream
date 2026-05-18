@@ -88,19 +88,27 @@ spinner_template = """
     </div>
     """
 
+
 # --- 3. Helper Functions ---
 def get_spinner_html():
     return widgets.HTML(value=spinner_template.format(vis="none", label="", t_str=""))
+
 
 def compute_elapsed(start_time):
     elapsed = int(time.time() - start_time)
     m, s = divmod(elapsed, 60)
     return f"{m:02d}:{s:02d}"
 
-_URL_RE = re.compile(r'(https?://\S+)')
+
+_URL_RE = re.compile(r"(https?://\S+)")
+
 
 def _linkify(text: str) -> str:
-    return _URL_RE.sub(r'<a href="\1" target="_blank" style="color:#0d6efd;text-decoration:underline">\1</a>', text)
+    return _URL_RE.sub(
+        r'<a href="\1" target="_blank" style="color:#0d6efd;text-decoration:underline">\1</a>',
+        text,
+    )
+
 
 # --- 4. LiveOutput ---
 class LiveOutput:
@@ -112,10 +120,11 @@ class LiveOutput:
     The VBox itself carries the custom-code-container class so all
     children sit inside one unified styled block.
     """
+
     def __init__(self, vbox: widgets.VBox, lock: threading.Lock):
-        self._vbox   = vbox
-        self._lock   = lock
-        self._buf    = []
+        self._vbox = vbox
+        self._lock = lock
+        self._buf = []
         self._html_w = widgets.HTML()
         self._vbox.add_class("custom-code-container")
 
@@ -146,7 +155,7 @@ class LiveOutput:
         with self._lock:
             if isinstance(obj, widgets.Widget):
                 self._commit()
-                self._buf    = []
+                self._buf = []
                 self._html_w = widgets.HTML()
                 self._vbox.children = self._vbox.children + (obj,)
                 return
@@ -157,7 +166,7 @@ class LiveOutput:
                 self._commit()
                 return
 
-            if hasattr(obj, '_repr_html_'):
+            if hasattr(obj, "_repr_html_"):
                 html_str = obj._repr_html_() or ""
                 self._buf.append(html_str)
                 self._ensure_html_in_vbox()
@@ -176,7 +185,7 @@ class LiveOutput:
         with self._lock:
             node = widgets.HTML()
             self._commit()
-            self._buf    = []
+            self._buf = []
             self._html_w = widgets.HTML()
             self._vbox.children = self._vbox.children + (node,)
             return node
@@ -186,6 +195,7 @@ class LiveOutput:
             self.append_stdout(f"{obj}\n")
         else:
             self.append_display_data(obj)
+
 
 # --- 5. Spinned Instance ---
 class Spinned:
@@ -200,7 +210,8 @@ class Spinned:
 
         def on_click_action(b):
             nonlocal is_running
-            if is_running: return
+            if is_running:
+                return
 
             is_running = True
 
@@ -219,7 +230,7 @@ class Spinned:
                     self.spinner_html.value = spinner_template.format(
                         vis="inline-block",
                         label="Running:",
-                        t_str=compute_elapsed(start_time)
+                        t_str=compute_elapsed(start_time),
                     )
                     time.sleep(1)
 
@@ -239,7 +250,7 @@ class Spinned:
                     self.spinner_html.value = spinner_template.format(
                         vis="none",
                         label="Finished in",
-                        t_str=compute_elapsed(start_time)
+                        t_str=compute_elapsed(start_time),
                     )
                     for button in self.all_buttons:
                         button.disabled = False
