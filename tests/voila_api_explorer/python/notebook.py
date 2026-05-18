@@ -1,55 +1,63 @@
-import time
-
-import pandas as pd
-from ipydatagrid import DataGrid
+import requests as r
 from IPython.core.display_functions import display
-from ipywidgets import RadioButtons, widgets, HTML
-from ipystream.stream import Stream
-from ipystream.renderer import plotly_fig_to_html
-import plotly.graph_objects as go
-
+from ipywidgets import widgets, HTML
 from ipystream.voila import spinned_print_out
-from ipystream.voila.documentation import documentation_btn
-from ipystream.voila.kernel import find_project_root
 from ipystream.voila.spinned_print_out import get_spinner_html
-from tests.voila.python.popup import popup_button
-from tests.voila.python.spinner_count import count_button
 from tests.voila_api_explorer.python.utils import load_creds
 
 
 def run():
-    print("hello")
-    creds = load_creds("/home/charles/Desktop/SEP.properties")
-    print(creds)
+    u, p = load_creds("/home/charles/Desktop/SEP.properties")
+    url = "https://eu-north-1-api.dev.sympheny.com/backoffice/auth/ext/token"
+    data = {"email": u, "password": p}
+    headers = {"content-type": "application/json"}
 
-    dropdown_solars = widgets.Dropdown(description='Solar tech:', layout=widgets.Layout(width='450px', height='35px', margin='5px 40px 0 0'))
-    options = []
-    options.append(("a", "b"))
-    options.append(("a2", "b2"))
-    dropdown_solars.options = options
-    dropdown_solars.value = options[0][1]
+    resp = r.post(url, headers=headers, json=data)
+    jwt = resp.json()["access_token"]
+    h = {"authorization": f"Bearer {jwt}", "content-type": "application/json"}
+
+    # list projects
+    be = "https://eu-north-1-api.dev.sympheny.com/sympheny-app/"
+    projects = r.get(f"{be}projects", headers=h).json()["data"]["projects"]
+    projects = [(x["projectName"], x["projectGuid"]) for x in projects]
+    projects.sort(key=lambda x: x[0])
+
+    dropdown_solars = widgets.Dropdown(description='Projects:', layout=widgets.Layout(width='450px', height='35px', margin='5px 40px 0 0'))
+    dropdown_solars.options = projects
+    dropdown_solars.value = projects[0][1]
     display(dropdown_solars)
 
     # spinner
     vbox = widgets.VBox()
     spinner_html = get_spinner_html()
 
-    button_create = widgets.Button(description="A", icon="play", layout=widgets.Layout(width="250px"))
-    button_create.add_class("button-green")
+    button_create = widgets.Button(description="1) List scenarios in Project", layout=widgets.Layout(width="250px"))
+    button2 = widgets.Button(description="2) Button 2", layout=widgets.Layout(width="250px"))
 
-    buttons = [button_create]
+    buttons = [button_create, button2]
     for btn in buttons:
         btn.layout.margin = '0 30px 0 0'
 
     def f(out):
-        out.append_display_data("a")
-        time.sleep(4)
-        out.append_display_data("b")
+        project_id = dropdown_solars.value
+        project_name = [x[0] for x in projects if x[1] == project_id][0]
+        out.append_display_data(f"Selected project: {project_name}")
+        out.append_display_data(project_id)
+        out.append_display_data(dropdown_solars.options)
+        analyses = r.get(f"{be}projects/{project_id}", headers=h).json()["data"]["analyses"]
+        analyses = [x["analysisGuid"] for x in analyses]
+
+
+        scenarios = [x for y in analyses for x in r.get(f"{be}analysis/{y}", headers=h).json()["data"]["scenarios"]]
+        out.append_display_data(scenarios)
+
+    def f2(out):
+        out.append_display_data("hello world")
+
 
     spinned_print_out.get(f, button_create, vbox, spinner_html, buttons)
-    display(widgets.HBox(buttons))
-
+    spinned_print_out.get(f2, button2, vbox, spinner_html, buttons)
     space = HTML("<br/>")
+    display(space, widgets.HBox(buttons))
     display(space, spinner_html, vbox)
-
 
