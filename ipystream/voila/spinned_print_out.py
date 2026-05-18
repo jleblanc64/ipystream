@@ -181,6 +181,12 @@ class LiveOutput:
             self._vbox.children = self._vbox.children + (node,)
             return node
 
+    def print(self, obj):
+        if isinstance(obj, str):
+            self.append_stdout(f"{obj}\n")
+        else:
+            self.append_display_data(obj)
+
 # --- 5. Core Controller ---
 def get(fun, btn, vbox: widgets.VBox, spinner_html, all_buttons):
     is_running = False
@@ -199,7 +205,7 @@ def get(fun, btn, vbox: widgets.VBox, spinner_html, all_buttons):
 
         start_time = time.time()
         lock = threading.Lock()
-        out  = LiveOutput(vbox, lock)
+        out = LiveOutput(vbox, lock)
 
         def update_timer():
             while is_running:

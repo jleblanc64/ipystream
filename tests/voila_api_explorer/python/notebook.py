@@ -39,7 +39,7 @@ def run():
     def f(out):
         project_id = dropdown_solars.value
         project_name = [x[0] for x in projects if x[1] == project_id][0]
-        out.append_display_data(f"Selected project: {project_name}")
+        out.print(f"Selected project: {project_name}")
 
         analyses = r.get(f"{be}projects/{project_id}", headers=h).json()["data"]["analyses"]
         analyses = [x["analysisGuid"] for x in analyses]
@@ -48,13 +48,16 @@ def run():
         df = pd.DataFrame(scenarios)
         datagrid = DataGrid(df, selection_mode="row", layout={"height": "180px"})
         datagrid.auto_fit_columns = True
-        out.append_display_data(datagrid)
+        out.print(datagrid)
 
     def f2(out):
-        out.append_display_data("hello world")
+        out.print("hello world")
 
     spinned_print_out.get(f, button_create, vbox, spinner_html, buttons)
     spinned_print_out.get(f2, button2, vbox, spinner_html, buttons)
     space = HTML("<br/>")
     display(space, widgets.HBox(buttons))
     display(space, spinner_html, vbox)
+
+def print_out(out, msg):
+    out.append_stdout(f"{msg}\n")
