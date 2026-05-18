@@ -33,7 +33,7 @@ def run():
     buttons = [button_create, button2]
     for btn in buttons:
         btn.layout.margin = '0 30px 0 0'
-    display(space, widgets.HBox([button_create, button2]))
+    display(space, widgets.HBox(buttons))
 
     # spinner area display
     vbox = widgets.VBox()
