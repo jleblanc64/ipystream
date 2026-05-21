@@ -3,9 +3,9 @@ import requests as r
 from IPython.core.display_functions import display
 from ipydatagrid import DataGrid
 from ipywidgets import widgets, HTML
+from jproperties import Properties
 from ipystream.voila.spinned_print_out import get_spinner_html, Spinned
 from ipystream.voila.utils_tdqm import tqdm_out
-from tests.voila_api_explorer.python.utils import load_creds
 import pandas as pd
 
 
@@ -80,3 +80,13 @@ def run():
     spinned = Spinned(vbox, spinner_html)
     spinned.get(f, button_create)
     spinned.get(f2, button2)
+
+
+def load_creds(path: str) -> tuple[str, str]:
+    props = Properties()
+    with open(path, "rb") as f:
+        props.load(f)
+
+    username = props.get("username").data
+    password = props.get("password").data
+    return username, password
