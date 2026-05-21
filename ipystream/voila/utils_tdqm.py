@@ -14,10 +14,13 @@ class WidgetWriter:
         if text:
             self._current_line = text
         safe = _html.escape(self._current_line)
-        self.node.value = f'<pre style="font-size:12px;margin:0;white-space:pre">{safe}</pre>'
+        self.node.value = (
+            f'<pre style="font-size:12px;margin:0;white-space:pre">{safe}</pre>'
+        )
 
     def flush(self):
         pass
+
 
 def tqdm_out(iterable, target_widget, desc="", **kwargs):
     """
@@ -25,10 +28,14 @@ def tqdm_out(iterable, target_widget, desc="", **kwargs):
     target_widget : LiveOutput instance (has .new_inplace_node()),
                     or plain widgets.Output() in tests.
     """
-    if not hasattr(iterable, '__len__'):
+    if not hasattr(iterable, "__len__"):
         iterable = list(iterable)
 
-    node = target_widget.new_inplace_node() if hasattr(target_widget, 'new_inplace_node') else target_widget.append_stdout
+    node = (
+        target_widget.new_inplace_node()
+        if hasattr(target_widget, "new_inplace_node")
+        else target_widget.append_stdout
+    )
     settings = {
         "file": WidgetWriter(node),
         "ncols": 80,
