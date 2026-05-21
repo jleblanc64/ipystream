@@ -1,6 +1,8 @@
+import contextlib
 import logging
 import os
-from ipystream.voila import patched_generator, auth_wall_limit, patch_voila
+with contextlib.redirect_stdout(open(os.devnull, 'w')):
+    from ipystream.voila import patched_generator, auth_wall_limit, patch_voila
 from ipystream.voila.utils import create_ipynb
 import json
 import site

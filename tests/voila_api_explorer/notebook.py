@@ -75,7 +75,7 @@ def run():
         out.print("looping over list")
         for i in tqdm_out(range(0, 10), out):
             # simulate work within loop
-            time.sleep(1)
+            time.sleep(0.5)
 
     spinned = Spinned(vbox, spinner_html)
     spinned.get(f, button_create)
