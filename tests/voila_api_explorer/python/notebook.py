@@ -1,11 +1,12 @@
+import time
 import requests as r
 from IPython.core.display_functions import display
 from ipydatagrid import DataGrid
 from ipywidgets import widgets, HTML
 from ipystream.voila.spinned_print_out import get_spinner_html, Spinned
+from ipystream.voila.utils_tdqm import tqdm_out
 from tests.voila_api_explorer.python.utils import load_creds
 import pandas as pd
-
 
 def run():
     # get header
@@ -70,7 +71,10 @@ def run():
         out.print(datagrid)
 
     def f2(out):
-        out.print("hello world")
+        out.print("looping over list")
+        for i in tqdm_out(range(0, 10), out):
+            # simulate work within loop
+            time.sleep(1)
 
     spinned = Spinned(vbox, spinner_html)
     spinned.get(f, button_create)
