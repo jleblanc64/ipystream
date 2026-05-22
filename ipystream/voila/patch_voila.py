@@ -178,9 +178,7 @@ def duplicates(data: dict[str, str]) -> list[str]:
     return to_kill
 
 
-def cleanup_forced_shutdowns(
-    forced_shutdowns: set[str], running_kernels: set[str]
-) -> None:
+def cleanup_forced_shutdowns(forced_shutdowns: set[str], running_kernels: set[str]) -> None:
     """
     Remove any kernel IDs from forced_shutdowns that are not in running_kernels.
     Modifies forced_shutdowns in place.

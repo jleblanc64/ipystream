@@ -7,6 +7,4 @@ async def wait_stream_async(i, l):
             return
         await asyncio.sleep(1)  # non-blocking sleep
 
-    raise Exception(
-        f"Stream didn't finish. Expected {i}, but was {l.stream_update_done_count}"
-    )
+    raise Exception(f"Stream didn't finish. Expected {i}, but was {l.stream_update_done_count}")

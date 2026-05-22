@@ -44,17 +44,11 @@ def run():
         w.cache["marque"] = w.parents[0].value
         dicts_filt = [d for d in dicts if d["Marque"] == w.cache["marque"]]
         opts = sorted(list(set([d["Couleur"] for d in dicts_filt])))
-        select = widgets.SelectMultiple(
-            options=opts, value=opts, layout={"height": "50px"}
-        )
+        select = widgets.SelectMultiple(options=opts, value=opts, layout={"height": "50px"})
         w.display_or_update(select)
 
     def annees(w):
-        dicts_filt = [
-            d
-            for d in dicts
-            if d["Marque"] == w.cache["marque"] and d["Couleur"] in w.parents[0].value
-        ]
+        dicts_filt = [d for d in dicts if d["Marque"] == w.cache["marque"] and d["Couleur"] in w.parents[0].value]
         annees = [d["Année"] for d in dicts_filt]
 
         annees_count = {k: 0 for k in annees}

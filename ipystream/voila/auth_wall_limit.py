@@ -60,9 +60,7 @@ def patch(log_user_fun, token_to_user_fun, MAX_KERNELS):
                 render_task,
                 rendered_cache,
                 kernel_id,
-            ) = await _original_get_rendered_notebook(
-                self, notebook_name, extra_kernel_env_variables, **kwargs
-            )
+            ) = await _original_get_rendered_notebook(self, notebook_name, extra_kernel_env_variables, **kwargs)
 
             # Map kernel to user if available
             if user:
@@ -84,9 +82,7 @@ def patch(log_user_fun, token_to_user_fun, MAX_KERNELS):
         VoilaKernelManagerCls.get_rendered_notebook = _patched_get_rendered_notebook
         return VoilaKernelManagerCls
 
-    voila_kernel_manager.voila_kernel_manager_factory = (
-        patched_voila_kernel_manager_factory
-    )
+    voila_kernel_manager.voila_kernel_manager_factory = patched_voila_kernel_manager_factory
 
     async def check_user_kernel_conflict(user: str, data: dict):
         global_kernel_manager = get_kernel_manager()
@@ -100,14 +96,10 @@ def patch(log_user_fun, token_to_user_fun, MAX_KERNELS):
                 if connections == 0:
                     # kill existing
                     _original_shutdown_kernel = get_original_shutdown_kernel()
-                    await _original_shutdown_kernel(
-                        global_kernel_manager, existing_kid, now=True
-                    )
+                    await _original_shutdown_kernel(global_kernel_manager, existing_kid, now=True)
                     continue
 
-                raise HTTPError(
-                    503, f"User '{user}' already has a running kernel ({existing_kid})"
-                )
+                raise HTTPError(503, f"User '{user}' already has a running kernel ({existing_kid})")
 
         if count > 2:
             raise HTTPError(503, f"User '{user}' already has 2 running kernels")

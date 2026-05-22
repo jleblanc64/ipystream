@@ -15,24 +15,18 @@ _stop_heartbeat = threading.Event()
 def update_heartbeat(heartbeat_widget):
     counter = 0
     while not _stop_heartbeat.is_set():
-        heartbeat_widget.value = (
-            f'<div id="kernel-heartbeat-value" style="display: none;">{counter}</div>'
-        )
+        heartbeat_widget.value = f'<div id="kernel-heartbeat-value" style="display: none;">{counter}</div>'
         counter += 1
         time.sleep(1)
 
 
 def setup_heartbeat_checker():
     # 1. Create the hidden widget for heartbeat
-    heartbeat_widget = widgets.HTML(
-        value='<div id="kernel-heartbeat-value" style="display: none;">-1</div>'
-    )
+    heartbeat_widget = widgets.HTML(value='<div id="kernel-heartbeat-value" style="display: none;">-1</div>')
     display(heartbeat_widget)
 
     # 2. Start the background thread to update the widget
-    heartbeat_thread = threading.Thread(
-        target=update_heartbeat, args=(heartbeat_widget,)
-    )
+    heartbeat_thread = threading.Thread(target=update_heartbeat, args=(heartbeat_widget,))
     heartbeat_thread.daemon = True
     heartbeat_thread.start()
 

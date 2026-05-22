@@ -43,9 +43,7 @@ def build_injection(timeout_spinner):
         "   background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; "
         "   padding: 15px 30px; border-radius: 4px; z-index: 10001; font-family: sans-serif;"
         "}"
-        "</style>"
-        + logo_html
-        + "<div id='voila-timeout-msg'>voila timeout, check your connection</div>"
+        "</style>" + logo_html + "<div id='voila-timeout-msg'>voila timeout, check your connection</div>"
         "<script>"
         "(function() {"
         "    setTimeout(function() {"
@@ -76,9 +74,7 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner):
                 token = self.get_query_argument(PARAM_KEY_TOKEN, None)
 
             if not token:
-                raise HTTPError(
-                    403, f"Access denied: ?{PARAM_KEY_TOKEN} parameter required"
-                )
+                raise HTTPError(403, f"Access denied: ?{PARAM_KEY_TOKEN} parameter required")
 
         await _original_prepare(self)
 
@@ -101,9 +97,7 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner):
         # if the handler got a notebook_path argument, always serve that
         notebook_path = self.notebook_path or path
 
-        if (
-            self.notebook_path and path
-        ):  # when we are in single notebook mode but have a path
+        if self.notebook_path and path:  # when we are in single notebook mode but have a path
             self.redirect_to_file(path)
             return
 
@@ -123,10 +117,7 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner):
         # Add HTTP Headers as env vars following rfc3875#section-4.1.18
         if len(self.voila_configuration.http_header_envs) > 0:
             for header_name in self.request.headers:
-                config_headers_lower = [
-                    header.lower()
-                    for header in self.voila_configuration.http_header_envs
-                ]
+                config_headers_lower = [header.lower() for header in self.voila_configuration.http_header_envs]
                 if header_name.lower() in config_headers_lower:
                     env_name = f'HTTP_{header_name.upper().replace("-", "_")}'
                     request_info[env_name] = self.request.headers.get(header_name)
@@ -143,22 +134,16 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner):
         yield build_injection(timeout_spinner)
 
         try:
-            current_notebook_data: Dict = self.kernel_manager.notebook_data.get(
-                notebook_path, {}
-            )
+            current_notebook_data: Dict = self.kernel_manager.notebook_data.get(notebook_path, {})
             pool_size: int = self.kernel_manager.get_pool_size(notebook_path)
         except AttributeError:
             current_notebook_data = {}
             pool_size = 0
 
         # add headers
-        extra_kernel_env_variables = {
-            ENV_VARIABLE.VOILA_REQUEST_URL: self.request.full_url()
-        }
+        extra_kernel_env_variables = {ENV_VARIABLE.VOILA_REQUEST_URL: self.request.full_url()}
         if self.request.headers:
-            extra_kernel_env_variables["headers"] = json.dumps(
-                {k: v for k, v in self.request.headers.items()}
-            )
+            extra_kernel_env_variables["headers"] = json.dumps({k: v for k, v in self.request.headers.items()})
 
         if self.should_use_rendered_notebook(
             current_notebook_data,
@@ -176,9 +161,7 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner):
                 extra_kernel_env_variables=extra_kernel_env_variables,
             )
 
-            RequestInfoSocketHandler.send_updates(
-                {"kernel_id": kernel_id, "payload": request_info}
-            )
+            RequestInfoSocketHandler.send_updates({"kernel_id": kernel_id, "payload": request_info})
 
             if len(rendered_cache) > 0:
                 yield "".join(rendered_cache)
@@ -193,9 +176,7 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner):
 
         else:
             supported_file_extensions = [".ipynb"]
-            supported_file_extensions.extend(
-                [x.lower() for x in self.voila_configuration.extension_language_mapping]
-            )
+            supported_file_extensions.extend([x.lower() for x in self.voila_configuration.extension_language_mapping])
             file_extenstion = Path(notebook_path).suffix.lower()
             if file_extenstion not in supported_file_extensions:
                 self.redirect_to_file(path)
@@ -244,13 +225,9 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner):
             kernel_env = {**os.environ, **request_info}
             kernel_env[ENV_VARIABLE.VOILA_PREHEAT] = "False"
             kernel_env[ENV_VARIABLE.VOILA_BASE_URL] = self.base_url
-            kernel_env[ENV_VARIABLE.VOILA_SERVER_URL] = self.settings.get(
-                "server_url", "/"
-            )
+            kernel_env[ENV_VARIABLE.VOILA_SERVER_URL] = self.settings.get("server_url", "/")
             kernel_env[ENV_VARIABLE.VOILA_REQUEST_URL] = self.request.full_url()
-            kernel_env[ENV_VARIABLE.VOILA_APP_PORT] = request_info[
-                ENV_VARIABLE.SERVER_PORT
-            ]
+            kernel_env[ENV_VARIABLE.VOILA_APP_PORT] = request_info[ENV_VARIABLE.SERVER_PORT]
 
             kernel_id = await ensure_async(
                 self.kernel_manager.start_kernel(
@@ -270,9 +247,7 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner):
                 }
 
             async def put_html():
-                async for html_snippet, _ in gen.generate_content_generator(
-                    kernel_id, kernel_future
-                ):
+                async for html_snippet, _ in gen.generate_content_generator(kernel_id, kernel_future):
                     await queue.put(html_snippet)
                 await queue.put(None)
 
@@ -280,9 +255,7 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner):
 
             while True:
                 try:
-                    html_snippet = await asyncio.wait_for(
-                        queue.get(), self.voila_configuration.http_keep_alive_timeout
-                    )
+                    html_snippet = await asyncio.wait_for(queue.get(), self.voila_configuration.http_keep_alive_timeout)
                 except asyncio.TimeoutError:
                     yield time_out()
                 else:

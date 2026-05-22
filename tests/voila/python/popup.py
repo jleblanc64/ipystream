@@ -5,9 +5,7 @@ from ipywidgets import HTML, Button
 def popup_button():
     current_color = {"value": "blue"}
     # 1. The "Hello" Text Widget
-    hello_html = HTML(
-        "<h2 style='text-align:center; margin-top:20px; color:blue'>Hello</h2>"
-    )
+    hello_html = HTML("<h2 style='text-align:center; margin-top:20px; color:blue'>Hello</h2>")
 
     # 2. Toggle Color Button
     toggle_btn = v.Btn(children=["Toggle Color"], color="success", class_="ma-2")
@@ -25,9 +23,7 @@ def popup_button():
     toggle_btn.on_event("click", on_toggle_click)
 
     # 3. Close Buttons
-    close_icon_btn = v.Btn(
-        icon=True, color="red", children=[v.Icon(children=["mdi-close"])]
-    )
+    close_icon_btn = v.Btn(icon=True, color="red", children=[v.Icon(children=["mdi-close"])])
     close_text_btn = v.Btn(children=["Close"], color="red", text=True)
 
     # 4. Define the Dialog

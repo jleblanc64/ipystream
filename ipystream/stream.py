@@ -80,9 +80,7 @@ class WidgetUpdater(BaseModel):
                 self.display_horizontal(currents_level, wca_cleaned, first_display)
 
             if last_level:
-                level_obj.stream_update_done_count = (
-                    level_obj.stream_update_done_count + 1
-                )
+                level_obj.stream_update_done_count = level_obj.stream_update_done_count + 1
 
     def display_horizontal(self, currents_level, wca_cleaned, first_display):
         cache = wca_cleaned.cache
@@ -107,14 +105,10 @@ class WidgetUpdater(BaseModel):
             else:
                 proxy_update_display(box, id, cache)
 
-    def stream_down_obs(
-        self, parents, currents, debouncer, currents_level, level_obj, last_level
-    ):
+    def stream_down_obs(self, parents, currents, debouncer, currents_level, level_obj, last_level):
         @debouncer
         def widget_on_change(_):
-            self.stream_down(
-                parents, currents, currents_level, level_obj, False, last_level
-            )
+            self.stream_down(parents, currents, currents_level, level_obj, False, last_level)
 
         for widget in parents:
             widget.observe(widget_on_change, names="value")
@@ -198,16 +192,10 @@ class Stream(BaseModel):
             if level_below not in self.level_to_widget:
                 continue
 
-            self.level_to_widget[level].updater = self.level_to_widget[
-                level_below
-            ].updater
-            self.level_to_widget[level].vertical = self.level_to_widget[
-                level_below
-            ].vertical
+            self.level_to_widget[level].updater = self.level_to_widget[level_below].updater
+            self.level_to_widget[level].vertical = self.level_to_widget[level_below].vertical
             self.level_to_widget[level].title = self.level_to_widget[level_below].title
-            self.level_to_widget[level].split_hbox_after = self.level_to_widget[
-                level_below
-            ].split_hbox_after
+            self.level_to_widget[level].split_hbox_after = self.level_to_widget[level_below].split_hbox_after
 
             children = self.level_to_widget[level_below].widgets
             int_txt = IntText(value=0, disabled=True, description=internal_counter_desc)
@@ -218,9 +206,7 @@ class Stream(BaseModel):
             wu.stream_down(currents, children, level_below, self, True, last_level)
 
             # update on change
-            wu.stream_down_obs(
-                currents, children, self.debouncer, level_below, self, last_level
-            )
+            wu.stream_down_obs(currents, children, self.debouncer, level_below, self, last_level)
 
     def manually_update_stream(self, start_level=None, level_to_default_value=None):
         levels = list(self.level_to_widget.keys())
@@ -230,9 +216,7 @@ class Stream(BaseModel):
             currents = wu.widgets
 
             level_below = level + 1
-            if level_below not in self.level_to_widget or (
-                start_level and level_below < start_level
-            ):
+            if level_below not in self.level_to_widget or (start_level and level_below < start_level):
                 continue
 
             children = self.level_to_widget[level_below].widgets
@@ -248,9 +232,7 @@ class Stream(BaseModel):
             )
 
 
-def manually_stream_down(
-    wu, parents, currents, currents_level, level_obj, level_to_default_value, last_level
-):
+def manually_stream_down(wu, parents, currents, currents_level, level_obj, level_to_default_value, last_level):
     level = currents_level - 1
     if level_to_default_value and level in level_to_default_value:
         default_value = level_to_default_value[level]

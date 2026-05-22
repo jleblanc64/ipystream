@@ -137,9 +137,7 @@ class LiveOutput:
 
     def _flush_text(self, text: str, color: str = "#212529"):
         safe = _linkify(_html.escape(text))
-        self._buf.append(
-            f'<pre style="font-size:12px;margin-block:0;line-height:1.6;color:{color}">{safe}</pre>'
-        )
+        self._buf.append(f'<pre style="font-size:12px;margin-block:0;line-height:1.6;color:{color}">{safe}</pre>')
         self._ensure_html_in_vbox()
         self._commit()
 
@@ -174,9 +172,7 @@ class LiveOutput:
                 return
 
             safe = _linkify(_html.escape(repr(obj)))
-            self._buf.append(
-                f'<pre style="font-size:12px;margin-block:0;line-height:1.6">{safe}</pre>'
-            )
+            self._buf.append(f'<pre style="font-size:12px;margin-block:0;line-height:1.6">{safe}</pre>')
             self._ensure_html_in_vbox()
             self._commit()
 

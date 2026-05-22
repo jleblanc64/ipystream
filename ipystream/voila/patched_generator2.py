@@ -28,9 +28,7 @@ _original_execute_cell = VoilaExecutor.execute_cell
 
 async def patched_execute_cell(self, *args, **kwargs):
     # Retrieve ID early
-    kid = getattr(self, "kernel_id", None) or (
-        getattr(self.km, "kernel_id", None) if hasattr(self, "km") else None
-    )
+    kid = getattr(self, "kernel_id", None) or (getattr(self.km, "kernel_id", None) if hasattr(self, "km") else None)
 
     try:
         return await _original_execute_cell(self, *args, **kwargs)
@@ -70,9 +68,7 @@ def timeout(_original_get_generator, timeout_spinner):
 
                 try:
                     # Request next chunk
-                    yield await asyncio.wait_for(
-                        agen.__anext__(), timeout=max(0.01, remaining)
-                    )
+                    yield await asyncio.wait_for(agen.__anext__(), timeout=max(0.01, remaining))
                 except StopAsyncIteration:
                     break
 

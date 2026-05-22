@@ -1,7 +1,8 @@
 import contextlib
 import logging
 import os
-with contextlib.redirect_stdout(open(os.devnull, 'w')):
+
+with contextlib.redirect_stdout(open(os.devnull, "w")):
     from ipystream.voila import patched_generator, auth_wall_limit, patch_voila
 from ipystream.voila.utils import create_ipynb
 import json
@@ -26,9 +27,7 @@ def run(
         register_local_xpython()
         patch_solara_comm()
 
-    patched_generator.patch_voila_get_generator(
-        enforce_PARAM_KEY_TOKEN, timeout_spinner
-    )
+    patched_generator.patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner)
     auth_wall_limit.patch(log_user_fun, token_to_user_fun, MAX_KERNELS)
 
     NOTEBOOK = "jupyter.ipynb"

@@ -45,9 +45,7 @@ class WidgetCurrentsChildren(BaseModel):
 
     def display_or_update(self, widget) -> Handle:
         id = self.display_id(self.current_idx)
-        h = Handle(
-            idx=self.current_idx, w=self, display_id=id, cache=self.cache, existing=None
-        )
+        h = Handle(idx=self.current_idx, w=self, display_id=id, cache=self.cache, existing=None)
 
         is_update = self.current_idx < len(self.currents)
         if is_update:
