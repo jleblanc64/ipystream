@@ -50,7 +50,7 @@ def run():
     spinner_html = get_spinner_html()
     display(space, spinner_html, vbox)
 
-    # link spinner area, buttons and functions
+    # bind spinner area, functions and buttons
     def f(out):
         project_id = dropdown_solars.value
         project_name = [x[0] for x in projects if x[1] == project_id][0]
@@ -78,8 +78,8 @@ def run():
             time.sleep(0.5)
 
     spinned = Spinned(vbox, spinner_html)
-    spinned.get(f, button_create)
-    spinned.get(f2, button2)
+    spinned.bind(f, button_create)
+    spinned.bind(f2, button2)
 
 
 def load_creds(path: str) -> tuple[str, str]:

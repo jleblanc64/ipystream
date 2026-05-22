@@ -204,7 +204,7 @@ class Spinned:
         self.spinner_html = spinner_html
         self.all_buttons = []
 
-    def get(self, fun, btn):
+    def bind(self, fun, btn):
         self.all_buttons.append(btn)
         is_running = False
 
