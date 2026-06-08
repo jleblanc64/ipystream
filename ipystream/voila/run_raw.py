@@ -67,6 +67,7 @@ def run(
 
     voila_app.start()
 
+
 def verify_local_call():
     # 1. Get the literal string of what was run (e.g., "foo.py" or "/a/b/c/foo.py")
     command_input = sys.argv[0]
@@ -77,7 +78,6 @@ def verify_local_call():
     # 3. Extract ONLY the filename from that input (e.g., "foo.py")
     executed_script_path = Path(command_input)
     filename = executed_script_path.name
-
 
     # 4. Combine CWD with just the filename to target the local folder
     local_file_path = cwd / filename
@@ -93,6 +93,7 @@ def verify_local_call():
             f"   cd {correct_dir}\n"
             f"   python {filename}"
         )
+
 
 def register_local_xpython():
     # 1. Discover the current Python path
