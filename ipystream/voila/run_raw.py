@@ -4,7 +4,7 @@ import os
 
 with contextlib.redirect_stdout(open(os.devnull, "w")):
     from ipystream.voila import patched_generator, auth_wall_limit, patch_voila
-from ipystream.voila.utils import create_ipynb
+from ipystream.voila.utils import create_ipynb, is_sagemaker
 import json
 import site
 import sys
@@ -16,13 +16,17 @@ def run(
     POOL_SIZE=1,
     MAX_KERNELS=8,
     timeout_spinner=20,
-    use_xpython=True,
+    use_xpython: bool | None = None,
     enforce_PARAM_KEY_TOKEN=False,
     log_user_fun=None,
     token_to_user_fun=None,
     extra_args_override=None,
     port=8866,
 ):
+    verify_local_call()
+    if use_xpython is None:
+        use_xpython = is_sagemaker()
+
     if use_xpython:
         register_local_xpython()
         patch_solara_comm()
@@ -63,6 +67,32 @@ def run(
 
     voila_app.start()
 
+def verify_local_call():
+    # 1. Get the literal string of what was run (e.g., "foo.py" or "/a/b/c/foo.py")
+    command_input = sys.argv[0]
+
+    # 2. Get the folder where the command was called from (CWD)
+    cwd = Path.cwd()
+
+    # 3. Extract ONLY the filename from that input (e.g., "foo.py")
+    executed_script_path = Path(command_input)
+    filename = executed_script_path.name
+
+
+    # 4. Combine CWD with just the filename to target the local folder
+    local_file_path = cwd / filename
+
+    # 5. Check if that file actually exists in the CWD
+    if not local_file_path.exists():
+        correct_dir = executed_script_path.parent
+
+        raise Exception(
+            f"You must run this script from its own folder.\n\n"
+            f"You ran: python {command_input}\n"
+            f"Please run:\n"
+            f"   cd {correct_dir}\n"
+            f"   python {filename}"
+        )
 
 def register_local_xpython():
     # 1. Discover the current Python path
