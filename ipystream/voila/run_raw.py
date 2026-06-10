@@ -16,6 +16,7 @@ def run(
     POOL_SIZE=1,
     MAX_KERNELS=8,
     timeout_spinner=20,
+    notebook: str | None = None,
     use_xpython: bool | None = None,
     enforce_PARAM_KEY_TOKEN=False,
     log_user_fun=None,
@@ -51,7 +52,7 @@ def run(
     if extra_args_override:
         extra_args = extra_args_override
 
-    create_ipynb(NOTEBOOK, use_xpython)
+    create_ipynb(NOTEBOOK, use_xpython, notebook)
     sys.argv = ["voila", NOTEBOOK] + extra_args
 
     # start Voila

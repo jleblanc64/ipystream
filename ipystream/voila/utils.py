@@ -31,8 +31,11 @@ def is_sagemaker():
     return any(var in os.environ for var in sm_vars)
 
 
-def create_ipynb(path: str, use_xpython: bool) -> Path:
-    folder = "python." if Path("python").is_dir() else ""
+def create_ipynb(path: str, use_xpython: bool, notebook: str | None) -> Path:
+    if not notebook:
+        folder = "python." if Path("python").is_dir() else ""
+        notebook = f"{folder}notebook"
+
     notebook_data = {
         "cells": [
             {
@@ -43,7 +46,7 @@ def create_ipynb(path: str, use_xpython: bool) -> Path:
                 "outputs": [],
                 "source": [
                     "from ipystream.voila.kernel_heartbeat import setup_heartbeat_checker\n",
-                    f"from {folder}notebook import run\n",
+                    f"from {notebook} import run\n",
                     "import warnings\n",
                     "warnings.filterwarnings('ignore')\n",
                     "setup_heartbeat_checker()\n",
