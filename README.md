@@ -8,4 +8,8 @@ Easy interactive Jupyter dashboards, flowing top to bottom like a stream
 
 `poetry publish --build`
 
+To test live code locally: set in project `requirements.txt`:
+
+`-e /home/charles/IdeaProjects/ipystream`
+
 To see poetry-repository-pypi token, in terminal run: `seahorse`
