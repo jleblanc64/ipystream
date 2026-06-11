@@ -6,3 +6,4 @@ kernel_to_token.json
 kernel_to_user.json
 kernel.lock
 jupyter.ipynb
+logs.txt

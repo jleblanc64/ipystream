@@ -169,16 +169,18 @@ def duplicates(data: dict[str, str]) -> list[str]:
     seen = {}
     to_kill = []
 
-    for kernel_id, username in data.items():
-        if username in seen:
-            to_kill.append(kernel_id)
-        else:
-            seen[username] = True
+    # for kernel_id, username in data.items():
+    #     if username in seen:
+    #         to_kill.append(kernel_id)
+    #     else:
+    #         seen[username] = True
 
     return to_kill
 
 
-def cleanup_forced_shutdowns(forced_shutdowns: set[str], running_kernels: set[str]) -> None:
+def cleanup_forced_shutdowns(
+        forced_shutdowns: set[str], running_kernels: set[str]
+) -> None:
     """
     Remove any kernel IDs from forced_shutdowns that are not in running_kernels.
     Modifies forced_shutdowns in place.
