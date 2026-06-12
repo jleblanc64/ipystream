@@ -49,6 +49,19 @@ def run(
         f"--pool_size={POOL_SIZE}",
     ]
 
+    if not extra_args_override and is_sagemaker():
+        extra_args_override = [
+            f"--port={port}",
+            "--no-browser",
+            "--Voila.ip=0.0.0.0",
+            "--ServerApp.log_level=ERROR",
+            "--show_tracebacks=True",
+            "--preheat_kernel=True",
+            f"--pool_size={POOL_SIZE}",
+            f"--base_url=/jupyterlab/default/proxy/{port}/",
+            "--server_url=/",
+        ]
+
     if extra_args_override:
         extra_args = extra_args_override
 

@@ -14,6 +14,7 @@ KERNEL_CLEANUP_TIMEOUT_SEC = 20
 local_async_lock = asyncio.Lock()
 file_lock = FileLock("kernel.lock")
 
+
 def patch(log_user_fun, token_to_user_fun, MAX_KERNELS):
     def controlled_shutdown_kernel(self, kernel_id, **kwargs):
         return asyncio.ensure_future(asyncio.sleep(0))
@@ -26,7 +27,7 @@ def patch(log_user_fun, token_to_user_fun, MAX_KERNELS):
         _original_get_rendered_notebook = VoilaKernelManagerCls.get_rendered_notebook
 
         async def _patched_get_rendered_notebook(
-                self, notebook_name: str, extra_kernel_env_variables: dict = {}, **kwargs
+            self, notebook_name: str, extra_kernel_env_variables: dict = {}, **kwargs
         ):
             token = None
             user = None
@@ -62,7 +63,7 @@ def patch(log_user_fun, token_to_user_fun, MAX_KERNELS):
                         runnings = self.list_kernel_ids()
 
                         # A) Process check
-                        preheated_ids = [k for k in runnings if self.kernel_model(k).get('connections', 0) == 0]
+                        preheated_ids = [k for k in runnings if self.kernel_model(k).get("connections", 0) == 0]
 
                         # B) Voila internal pool check
                         nb_pool = self._pools.get(notebook_name, [])
@@ -134,14 +135,10 @@ def patch(log_user_fun, token_to_user_fun, MAX_KERNELS):
                 if connections == 0:
                     # kill existing
                     _original_shutdown_kernel = get_original_shutdown_kernel()
-                    await _original_shutdown_kernel(
-                        global_kernel_manager, existing_kid, now=True
-                    )
+                    await _original_shutdown_kernel(global_kernel_manager, existing_kid, now=True)
                     continue
 
-                raise HTTPError(
-                    503, f"User '{user}' already has a running kernel ({existing_kid})"
-                )
+                raise HTTPError(503, f"User '{user}' already has a running kernel ({existing_kid})")
 
         if count > 2:
             raise HTTPError(503, f"User '{user}' already has 2 running kernels")

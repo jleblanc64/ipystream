@@ -1,3 +1,3 @@
-from ipystream.voila import run_raw
+import ipystream
 
-run_raw.run(disable_logging=False, MAX_KERNELS=3)
+ipystream.run()

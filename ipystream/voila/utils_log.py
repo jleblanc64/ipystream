@@ -1,6 +1,7 @@
 import datetime
 from ipystream.voila.kernel import find_project_root
 
+
 class SimpleLogger:
     def __init__(self, filepath):
         self.filepath = filepath
@@ -10,11 +11,14 @@ class SimpleLogger:
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             f.write(f"[{timestamp}] {message}\n")
 
+
 # global logger
 log_path = find_project_root() / "logs.txt"
 
+
 def cleanup_log():
     log_path.write_text("")
+
 
 log = SimpleLogger(log_path)
 

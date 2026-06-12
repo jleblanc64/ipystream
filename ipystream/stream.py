@@ -1,10 +1,6 @@
 import threading
 from typing import Any, Callable
-import pandas as pd
-import solara
-from ipydatagrid import DataGrid
-from IPython.core.display import Javascript
-from IPython.core.display_functions import clear_output, display
+from IPython.core.display_functions import display
 from ipywidgets import HTML, HBox, IntText
 from pydantic import BaseModel
 from ipystream.async_debounce import AsyncDebouncer
@@ -256,24 +252,3 @@ def manually_stream_down(wu, parents, currents, currents_level, level_obj, level
 
     if last_level:
         level_obj.stream_update_done_count = level_obj.stream_update_done_count + 1
-
-
-def check_javascript():
-    grid = DataGrid(pd.DataFrame({"0": [0]}), layout={"height": "10px"})
-    display(grid)
-
-    dl = solara.FileDownload("a", filename="a", label="a")
-    display(dl)
-
-    js = """
-var err = 'Click to show javascript ' + 'error';
-var isJsError = document.body.innerHTML.includes(err);
-
-if (isJsError){
-    alert('Browser will be refreshed to fully load Jupyter widgets');
-    window.location.reload();
-}
-"""
-
-    display(Javascript(js))
-    clear_output()
