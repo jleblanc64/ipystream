@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ipystream"
-version = "0.1.24"
+version = "0.1.25"
 description = "Easy interactive Jupyter dashboards, flowing top to bottom like a stream"
 authors = ["Charles Dabadie <dabadich@gmail.com>"]
 license = "MIT"
@@ -21,6 +21,8 @@ plotly = "6.2.0"
 PyJWT = "2.10.1"
 voila = "0.5.10"
 ipykernel = "6.30.1"
+ipywidgets = "8.1.8"
+filelock = "3.29.3"
 jproperties = "2.1.2"
 tqdm = "4.67.3"
 xeus-python = "0.17.6"
