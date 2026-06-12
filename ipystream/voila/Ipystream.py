@@ -24,7 +24,8 @@ def run(
     extra_args_override=None,
     port=8866,
 ):
-    verify_local_call()
+    if not is_sagemaker():
+        verify_local_call()
     if use_xpython is None:
         use_xpython = is_sagemaker()
 
