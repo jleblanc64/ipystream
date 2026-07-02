@@ -15,7 +15,7 @@ local_async_lock = asyncio.Lock()
 file_lock = FileLock("kernel.lock")
 
 
-def patch(log_user_fun, token_to_user_fun, MAX_KERNELS):
+def patch(log_user_fun, token_to_user_fun, MAX_KERNELS, enforce_single_page_per_user):
     def controlled_shutdown_kernel(self, kernel_id, **kwargs):
         return asyncio.ensure_future(asyncio.sleep(0))
 
@@ -49,7 +49,7 @@ def patch(log_user_fun, token_to_user_fun, MAX_KERNELS):
 
                 try:
                     log(f"LOCK ACQUIRED: {user or 'unknown'}")
-                    if user:
+                    if user and enforce_single_page_per_user:
                         data = _load_kernel_to_user()
                         await check_user_kernel_conflict(user, data)
 

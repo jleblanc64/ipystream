@@ -15,6 +15,7 @@ def run(
     disable_logging=True,
     POOL_SIZE=1,
     MAX_KERNELS=8,
+    enforce_single_page_per_user=True,
     timeout_spinner=20,
     notebook: str | None = None,
     use_xpython: bool | None = None,
@@ -34,7 +35,7 @@ def run(
         patch_solara_comm()
 
     patched_generator.patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner)
-    auth_wall_limit.patch(log_user_fun, token_to_user_fun, MAX_KERNELS)
+    auth_wall_limit.patch(log_user_fun, token_to_user_fun, MAX_KERNELS, enforce_single_page_per_user)
 
     NOTEBOOK = "jupyter.ipynb"
 
