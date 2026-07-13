@@ -4,6 +4,10 @@ import pandas as pd
 from IPython.display import display
 import ipywidgets as widgets
 
+MAX_FILE_SIZE_MB = 10
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
+
 class BulletproofTwoStepUploader:
     def __init__(self):
         # Memory slots to store the file state in Python
@@ -45,47 +49,57 @@ class BulletproofTwoStepUploader:
         """)
 
         # Native input with INLINE javascript execution
-        self.uploader_html = widgets.HTML("""
+        self.uploader_html = widgets.HTML(f"""
             <div style="display: inline-block; vertical-align: middle;">
                 <input type="file" id="native-excel-picker" accept=".xlsx, .xls" style="display: none;"
-                       onchange="(function(input){
+                       onchange="(function(input){{
                            var statusText = document.getElementById('file-status-text');
-                           try {
+                           var MAX_BYTES = {MAX_FILE_SIZE_BYTES};
+                           try {{
                                var file = input.files[0];
                                if (!file) return;
-                               
+
+                               if (file.size > MAX_BYTES) {{
+                                   var sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+                                   var maxMb = (MAX_BYTES / (1024 * 1024)).toFixed(0);
+                                   statusText.style.color = '#e74c3c';
+                                   statusText.innerText = '❌ ' + file.name + ' is ' + sizeMb + 'MB - max allowed is ' + maxMb + 'MB';
+                                   input.value = '';
+                                   return;
+                               }}
+
                                statusText.style.color = '#3498db';
                                statusText.innerText = '⏳ Uploading: ' + file.name;
-                               
+
                                var reader = new FileReader();
-                               reader.onload = function(evt) {
-                                   try {
+                               reader.onload = function(evt) {{
+                                   try {{
                                        var base64Data = evt.target.result.split(',')[1];
-                                       
+
                                        var dBridge = document.getElementsByClassName('excel-data-bridge')[0].querySelector('textarea');
                                        var nBridge = document.getElementsByClassName('excel-name-bridge')[0].querySelector('input');
-                                       
+
                                        nBridge.value = file.name;
-                                       nBridge.dispatchEvent(new Event('input', { bubbles: true }));
-                                       nBridge.dispatchEvent(new Event('change', { bubbles: true }));
-                                       
+                                       nBridge.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                                       nBridge.dispatchEvent(new Event('change', {{ bubbles: true }}));
+
                                        dBridge.value = base64Data;
-                                       dBridge.dispatchEvent(new Event('input', { bubbles: true }));
-                                       dBridge.dispatchEvent(new Event('change', { bubbles: true }));
-                                       
-                                   } catch(innerErr) {
+                                       dBridge.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                                       dBridge.dispatchEvent(new Event('change', {{ bubbles: true }}));
+
+                                   }} catch(innerErr) {{
                                        statusText.style.color = '#e74c3c';
                                        statusText.innerText = '❌ Reader Error';
-                                   }
-                               };
+                                   }}
+                               }};
                                reader.readAsDataURL(file);
-                               input.value = ''; 
-                           } catch(err) {
+                               input.value = '';
+                           }} catch(err) {{
                                statusText.style.color = '#e74c3c';
                                statusText.innerText = '❌ Setup Error';
-                           }
-                       })(this);">
-                
+                           }}
+                       }})(this);">
+
                 <button class="custom-upload-btn" onclick="document.getElementById('native-excel-picker').click()">
                     📁 Select Excel File
                 </button>
@@ -125,6 +139,16 @@ class BulletproofTwoStepUploader:
                 # Parse the document into Python's memory space
                 b64_data = change['new']
                 file_bytes = base64.b64decode(b64_data)
+
+                # Server-side backstop: the client-side check above should
+                # already have blocked this, but re-check here in case it's
+                # ever bypassed.
+                if len(file_bytes) > MAX_FILE_SIZE_BYTES:
+                    size_mb = len(file_bytes) / (1024 * 1024)
+                    print(f"❌ File is {size_mb:.1f}MB — max allowed is {MAX_FILE_SIZE_MB}MB")
+                    self.current_df = None
+                    self.current_name = None
+                    return
 
                 self.current_name = self.name_bridge.value
                 self.current_df = pd.read_excel(io.BytesIO(file_bytes))
