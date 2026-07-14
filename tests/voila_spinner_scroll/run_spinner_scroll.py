@@ -1,3 +1,3 @@
 import ipystream
 
-ipystream.run()
+ipystream.run(show_logo=False)

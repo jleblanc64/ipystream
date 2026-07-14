@@ -24,6 +24,7 @@ def run(
     token_to_user_fun=None,
     extra_args_override=None,
     port=8866,
+    show_logo=True
 ):
     if not is_sagemaker():
         verify_local_call()
@@ -34,7 +35,7 @@ def run(
         register_local_xpython()
         patch_solara_comm()
 
-    patched_generator.patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner)
+    patched_generator.patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner, show_logo)
     auth_wall_limit.patch(log_user_fun, token_to_user_fun, MAX_KERNELS, enforce_single_page_per_user)
 
     NOTEBOOK = "jupyter.ipynb"
