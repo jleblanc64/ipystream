@@ -1,0 +1,3 @@
+import ipystream
+
+ipystream.run()
