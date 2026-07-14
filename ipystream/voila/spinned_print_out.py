@@ -24,6 +24,15 @@ CODE_BLOCK_STYLE = """
         box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
     }
 
+    .custom-code-container.scrolled {
+        display: block !important;
+        max-height: 260px !important;
+        overflow-y: auto !important;
+    }
+    .custom-code-container.scrolled > * {
+        flex-shrink: 0 !important;
+    }
+
     .custom-code-container .jupyter-widgets-output-area pre {
         font-size: 12px !important;
         margin: 0;
@@ -118,15 +127,20 @@ class LiveOutput:
     widgets.HTML node (in-place update, scroll-stable) and proper
     Jupyter widgets directly as VBox children.
     The VBox itself carries the custom-code-container class so all
-    children sit inside one unified styled block.
+    children sit inside one unified styled block. If `scrolled` is
+    True, the container also gets the `scrolled` class, capping its
+    height (~10 lines) and adding a scrollbar instead of growing
+    indefinitely.
     """
 
-    def __init__(self, vbox: widgets.VBox, lock: threading.Lock):
+    def __init__(self, vbox: widgets.VBox, lock: threading.Lock, scrolled: bool = False):
         self._vbox = vbox
         self._lock = lock
         self._buf = []
         self._html_w = widgets.HTML()
         self._vbox.add_class("custom-code-container")
+        if scrolled:
+            self._vbox.add_class("scrolled")
 
     def _commit(self):
         self._html_w.value = "".join(self._buf) if self._buf else ""
@@ -195,9 +209,10 @@ class LiveOutput:
 
 # --- 5. Spinned Instance ---
 class Spinned:
-    def __init__(self, vbox: widgets.VBox, spinner_html):
+    def __init__(self, vbox: widgets.VBox, spinner_html, scrolled: bool = False):
         self.vbox = vbox
         self.spinner_html = spinner_html
+        self.scrolled = scrolled
         self.all_buttons = []
 
     def bind(self, fun, btn):
@@ -213,13 +228,14 @@ class Spinned:
 
             self.vbox.children = ()
             self.vbox.remove_class("custom-code-container")
+            self.vbox.remove_class("scrolled")
 
             for button in self.all_buttons:
                 button.disabled = True
 
             start_time = time.time()
             lock = threading.Lock()
-            out = LiveOutput(self.vbox, lock)
+            out = LiveOutput(self.vbox, lock, scrolled=self.scrolled)
 
             def update_timer():
                 while is_running:

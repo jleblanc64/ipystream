@@ -15,8 +15,8 @@ def run():
 
     # bind spinner area, functions and button
     def f(out):
-        for i in range(0, 50):
+        for i in range(0, 200):
             out.print(i)
-            time.sleep(0.5)
+            time.sleep(0.1)
 
-    Spinned(vbox, spinner_html).bind(f, button)
+    Spinned(vbox, spinner_html, scrolled=True).bind(f, button)
