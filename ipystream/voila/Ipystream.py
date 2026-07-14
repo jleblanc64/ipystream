@@ -24,7 +24,7 @@ def run(
     token_to_user_fun=None,
     extra_args_override=None,
     port=8866,
-    show_logo=True
+    show_logo=True,
 ):
     if not is_sagemaker():
         verify_local_call()

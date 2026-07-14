@@ -16,21 +16,20 @@ class BulletproofTwoStepUploader:
 
         # 1. Invisible communication bridges
         self.data_bridge = widgets.Textarea()
-        self.data_bridge.add_class('excel-data-bridge')
+        self.data_bridge.add_class("excel-data-bridge")
 
         self.name_bridge = widgets.Text()
-        self.name_bridge.add_class('excel-name-bridge')
+        self.name_bridge.add_class("excel-name-bridge")
 
         # 2. Print Button (Kept ENABLED from the start to force Voila to bind it!)
         self.print_btn = widgets.Button(
-            description="📊 Print Columns",
-            button_style="primary",
-            layout=widgets.Layout(margin="0 0 0 10px")
+            description="📊 Print Columns", button_style="primary", layout=widgets.Layout(margin="0 0 0 10px")
         )
         self.print_btn.on_click(self.on_print_clicked)
 
         # UI Styling Rules
-        self.ui_styles = widgets.HTML("""
+        self.ui_styles = widgets.HTML(
+            """
             <style>
                 .excel-data-bridge, .excel-name-bridge { display: none !important; }
                 .custom-upload-btn {
@@ -46,10 +45,12 @@ class BulletproofTwoStepUploader:
                 }
                 .custom-upload-btn:hover { background-color: #27ae60; }
             </style>
-        """)
+        """
+        )
 
         # Native input with INLINE javascript execution
-        self.uploader_html = widgets.HTML(f"""
+        self.uploader_html = widgets.HTML(
+            f"""
             <div style="display: inline-block; vertical-align: middle;">
                 <input type="file" id="native-excel-picker" accept=".xlsx, .xls" style="display: none;"
                        onchange="(function(input){{
@@ -104,32 +105,37 @@ class BulletproofTwoStepUploader:
                     📁 Select Excel File
                 </button>
             </div>
-        """)
+        """
+        )
 
         # Permanent text status label next to buttons
         self.status_label = widgets.HTML(
             value="<span id='file-status-text' style='color: #7f8c8d; font-style: italic; margin-left: 10px; font-weight: bold;'>No file selected</span>",
-            layout=widgets.Layout(display="inline-block", margin="5px 0 0 10px")
+            layout=widgets.Layout(display="inline-block", margin="5px 0 0 10px"),
         )
 
         self.result_output = widgets.Output()
 
         # Attach the data watcher to stream raw strings into DataFrames
-        self.data_bridge.observe(self.process_incoming_upload, names='value')
+        self.data_bridge.observe(self.process_incoming_upload, names="value")
 
         # Combine everything into a neat horizontal toolbar layout
-        self.layout = widgets.VBox([
-            self.ui_styles,
-            self.data_bridge,
-            self.name_bridge,
-            widgets.HTML("<h3 style='color: #2c3e50; margin-bottom: 15px;'>Two-Step Column Extractor</h3>"),
-            widgets.HBox([self.uploader_html, self.print_btn, self.status_label], layout=widgets.Layout(align_items='center')),
-            widgets.HTML("<br><hr>"),
-            self.result_output
-        ])
+        self.layout = widgets.VBox(
+            [
+                self.ui_styles,
+                self.data_bridge,
+                self.name_bridge,
+                widgets.HTML("<h3 style='color: #2c3e50; margin-bottom: 15px;'>Two-Step Column Extractor</h3>"),
+                widgets.HBox(
+                    [self.uploader_html, self.print_btn, self.status_label], layout=widgets.Layout(align_items="center")
+                ),
+                widgets.HTML("<br><hr>"),
+                self.result_output,
+            ]
+        )
 
     def process_incoming_upload(self, change):
-        if not change['new']:
+        if not change["new"]:
             return
 
         with self.result_output:
@@ -137,7 +143,7 @@ class BulletproofTwoStepUploader:
 
             try:
                 # Parse the document into Python's memory space
-                b64_data = change['new']
+                b64_data = change["new"]
                 file_bytes = base64.b64decode(b64_data)
 
                 # Server-side backstop: the client-side check above should
@@ -162,7 +168,7 @@ class BulletproofTwoStepUploader:
 
             finally:
                 # Flush string bridge immediately so it can sense the next selection
-                self.data_bridge.value = ''
+                self.data_bridge.value = ""
 
     def on_print_clicked(self, b):
         with self.result_output:
@@ -177,6 +183,7 @@ class BulletproofTwoStepUploader:
             print(f"📋 Dataset Profile: {self.current_name}")
             print(f"📊 Total Columns ({len(self.current_df.columns)}):")
             print(list(self.current_df.columns))
+
 
 # Instantiate and show app
 def run():

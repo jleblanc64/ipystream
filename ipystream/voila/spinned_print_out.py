@@ -130,7 +130,9 @@ def _ensure_scroll_style(max_lines: int) -> str:
     css_class = _scroll_class_for(max_lines)
     if css_class not in _INJECTED_SCROLL_CLASSES:
         height_px = int(round(_SCROLL_PADDING_PX + max_lines * _SCROLL_LINE_HEIGHT_PX))
-        display(HTML(f"""
+        display(
+            HTML(
+                f"""
             <style>
             .custom-code-container.{css_class} {{
                 display: block !important;
@@ -141,7 +143,9 @@ def _ensure_scroll_style(max_lines: int) -> str:
                 flex-shrink: 0 !important;
             }}
             </style>
-        """))
+        """
+            )
+        )
         _INJECTED_SCROLL_CLASSES.add(css_class)
     return css_class
 
