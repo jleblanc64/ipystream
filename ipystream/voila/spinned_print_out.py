@@ -24,15 +24,6 @@ CODE_BLOCK_STYLE = """
         box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
     }
 
-    .custom-code-container.scrolled {
-        display: block !important;
-        max-height: 260px !important;
-        overflow-y: auto !important;
-    }
-    .custom-code-container.scrolled > * {
-        flex-shrink: 0 !important;
-    }
-
     .custom-code-container .jupyter-widgets-output-area pre {
         font-size: 12px !important;
         margin: 0;
@@ -119,6 +110,42 @@ def _linkify(text: str) -> str:
     )
 
 
+# --- Dynamic scroll-height CSS, keyed by max_lines ---
+# 12px font-size * 1.6 line-height (matches the console's <pre> rendering)
+_SCROLL_LINE_HEIGHT_PX = 19.2
+# matches custom-code-container's 20px top + 20px bottom padding
+_SCROLL_PADDING_PX = 40
+_INJECTED_SCROLL_CLASSES = set()
+
+
+def _scroll_class_for(max_lines: int) -> str:
+    return f"scrolled-lines-{max_lines}"
+
+
+def _ensure_scroll_style(max_lines: int) -> str:
+    """Injects (once per distinct max_lines value) a CSS rule that caps the
+    console's height to roughly `max_lines` lines and turns on a scrollbar.
+    Uses `display: block` (overriding VBox's default flex layout) so extra
+    children overflow and scroll instead of flex-shrinking to invisible."""
+    css_class = _scroll_class_for(max_lines)
+    if css_class not in _INJECTED_SCROLL_CLASSES:
+        height_px = int(round(_SCROLL_PADDING_PX + max_lines * _SCROLL_LINE_HEIGHT_PX))
+        display(HTML(f"""
+            <style>
+            .custom-code-container.{css_class} {{
+                display: block !important;
+                max-height: {height_px}px !important;
+                overflow-y: auto !important;
+            }}
+            .custom-code-container.{css_class} > * {{
+                flex-shrink: 0 !important;
+            }}
+            </style>
+        """))
+        _INJECTED_SCROLL_CLASSES.add(css_class)
+    return css_class
+
+
 # --- 4. LiveOutput ---
 class LiveOutput:
     """
@@ -127,20 +154,20 @@ class LiveOutput:
     widgets.HTML node (in-place update, scroll-stable) and proper
     Jupyter widgets directly as VBox children.
     The VBox itself carries the custom-code-container class so all
-    children sit inside one unified styled block. If `scrolled` is
-    True, the container also gets the `scrolled` class, capping its
-    height (~10 lines) and adding a scrollbar instead of growing
+    children sit inside one unified styled block. If `max_lines` is set,
+    the container also gets a matching scroll class, capping its height
+    to roughly that many lines and adding a scrollbar instead of growing
     indefinitely.
     """
 
-    def __init__(self, vbox: widgets.VBox, lock: threading.Lock, scrolled: bool = False):
+    def __init__(self, vbox: widgets.VBox, lock: threading.Lock, max_lines: int = None):
         self._vbox = vbox
         self._lock = lock
         self._buf = []
         self._html_w = widgets.HTML()
         self._vbox.add_class("custom-code-container")
-        if scrolled:
-            self._vbox.add_class("scrolled")
+        if max_lines is not None:
+            self._vbox.add_class(_scroll_class_for(max_lines))
 
     def _commit(self):
         self._html_w.value = "".join(self._buf) if self._buf else ""
@@ -209,11 +236,17 @@ class LiveOutput:
 
 # --- 5. Spinned Instance ---
 class Spinned:
-    def __init__(self, vbox: widgets.VBox, spinner_html, scrolled: bool = False):
+    def __init__(self, vbox: widgets.VBox, spinner_html, max_lines: int = None):
         self.vbox = vbox
         self.spinner_html = spinner_html
-        self.scrolled = scrolled
+        self.max_lines = max_lines
         self.all_buttons = []
+        if max_lines is not None:
+            # Inject the scroll CSS now, during normal script/app setup.
+            # display() calls made later from inside a button click handler
+            # aren't reliably routed into the page in Voila, so this can't
+            # be deferred to LiveOutput's per-run construction.
+            _ensure_scroll_style(max_lines)
 
     def bind(self, fun, btn):
         self.all_buttons.append(btn)
@@ -228,14 +261,15 @@ class Spinned:
 
             self.vbox.children = ()
             self.vbox.remove_class("custom-code-container")
-            self.vbox.remove_class("scrolled")
+            if self.max_lines is not None:
+                self.vbox.remove_class(_scroll_class_for(self.max_lines))
 
             for button in self.all_buttons:
                 button.disabled = True
 
             start_time = time.time()
             lock = threading.Lock()
-            out = LiveOutput(self.vbox, lock, scrolled=self.scrolled)
+            out = LiveOutput(self.vbox, lock, max_lines=self.max_lines)
 
             def update_timer():
                 while is_running:

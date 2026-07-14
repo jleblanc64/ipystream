@@ -19,4 +19,6 @@ def run():
             out.print(i)
             time.sleep(0.1)
 
-    Spinned(vbox, spinner_html, scrolled=True).bind(f, button)
+    # Spinned(vbox, spinner_html, max_lines=15).bind(f, button)
+    Spinned(vbox, spinner_html, max_lines=5).bind(f, button)
+    # Spinned(vbox, spinner_html).bind(f, button)
