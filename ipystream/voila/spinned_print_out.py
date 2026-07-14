@@ -116,6 +116,7 @@ _SCROLL_LINE_HEIGHT_PX = 19.2
 # matches custom-code-container's 20px top + 20px bottom padding
 _SCROLL_PADDING_PX = 40
 _INJECTED_SCROLL_CLASSES = set()
+_AUTOSCROLL_INJECTED = False
 
 
 def _scroll_class_for(max_lines: int) -> str:
@@ -148,6 +149,71 @@ def _ensure_scroll_style(max_lines: int) -> str:
         )
         _INJECTED_SCROLL_CLASSES.add(css_class)
     return css_class
+
+
+def _ensure_autoscroll_script():
+    """Injects (once per kernel) a small "sticky bottom" auto-scroller for
+    any scrollable console container (`.custom-code-container` with a
+    `scrolled-lines-*` class). New output auto-scrolls the container to
+    the bottom, unless the user has manually scrolled up to read earlier
+    lines — in which case it backs off until they scroll back down near
+    the bottom, or a new run clears the container's content."""
+    global _AUTOSCROLL_INJECTED
+    if _AUTOSCROLL_INJECTED:
+        return
+
+    display(
+        HTML(
+            """
+        <script>
+        (function(){
+            if (window.__consoleAutoScrollInit) return;
+            window.__consoleAutoScrollInit = true;
+
+            var NEAR_BOTTOM_PX = 40;
+            var CONTAINER_SELECTOR = '.custom-code-container[class*="scrolled-lines-"]';
+
+            function isNearBottom(el){
+                return (el.scrollHeight - el.scrollTop - el.clientHeight) < NEAR_BOTTOM_PX;
+            }
+
+            // Track whether the user has manually scrolled away from the
+            // bottom, so we don't yank them back down mid-read. Delegated
+            // on document with capture:true since 'scroll' doesn't bubble.
+            document.addEventListener('scroll', function(evt){
+                var el = evt.target;
+                if (!el || !el.classList || !el.classList.contains('custom-code-container')) return;
+                el.dataset.userScrolledAway = isNearBottom(el) ? '' : '1';
+            }, true);
+
+            function followBottom(){
+                document.querySelectorAll(CONTAINER_SELECTOR).forEach(function(el){
+                    // Not overflowing yet (e.g. just cleared for a new run) —
+                    // reset the "scrolled away" flag so the new run starts
+                    // following the bottom again.
+                    if (el.scrollHeight <= el.clientHeight + 1){
+                        el.dataset.userScrolledAway = '';
+                        return;
+                    }
+                    if (el.dataset.userScrolledAway === '1') return;
+                    el.scrollTop = el.scrollHeight;
+                });
+            }
+
+            var observer = new MutationObserver(function(){
+                requestAnimationFrame(followBottom);
+            });
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+        })();
+        </script>
+        """
+        )
+    )
+    _AUTOSCROLL_INJECTED = True
 
 
 # --- 4. LiveOutput ---
@@ -251,6 +317,7 @@ class Spinned:
             # aren't reliably routed into the page in Voila, so this can't
             # be deferred to LiveOutput's per-run construction.
             _ensure_scroll_style(max_lines)
+            _ensure_autoscroll_script()
 
     def bind(self, fun, btn):
         self.all_buttons.append(btn)
