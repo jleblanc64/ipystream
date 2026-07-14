@@ -1,4 +1,29 @@
 def get_logo_html(_LOGO_B64):
+    logo_block = ""
+    logo_mover_js = ""
+
+    if _LOGO_B64 is not None:
+        logo_block = f"""
+        <div id="voila-logo-wrapper">
+            <img id="voila-logo" src="data:image/png;base64,{_LOGO_B64}" />
+        </div>
+        """
+        logo_mover_js = """
+            // 4. LOGO MOVER
+            var moveAttempts = 0;
+            var logoMover = setInterval(function() {
+                var scrollContainer = document.getElementById('rendered_cells');
+                var logo = document.getElementById('voila-logo-wrapper');
+                if (scrollContainer && logo) {
+                    scrollContainer.prepend(logo);
+                    logo.style.display = 'block';
+                    clearInterval(logoMover);
+                }
+                moveAttempts++;
+                if (moveAttempts > 100) clearInterval(logoMover);
+            }, 100);
+        """
+
     return f"""
         <style>
             /* 1. HIDE LOADING STATUS */
@@ -10,7 +35,6 @@ def get_logo_html(_LOGO_B64):
                 visibility: hidden !important;
                 opacity: 0 !important;
             }}
-
             /* 2. ENHANCED LOGO STYLING */
             #voila-logo-wrapper {{ display: none; }}
             #voila-logo {{
@@ -32,11 +56,7 @@ def get_logo_html(_LOGO_B64):
                 position: relative !important; 
             }}
         </style>
-
-        <div id="voila-logo-wrapper">
-            <img id="voila-logo" src="data:image/png;base64,{_LOGO_B64}" />
-        </div>
-
+        {logo_block}
         <script>
         (function() {{
             // 3. JAVASCRIPT HIJACK
@@ -44,20 +64,7 @@ def get_logo_html(_LOGO_B64):
                 // Muted
             }};
             window.voila_process = window.update_loading_text;
-
-            // 4. LOGO MOVER
-            var moveAttempts = 0;
-            var logoMover = setInterval(function() {{
-                var scrollContainer = document.getElementById('rendered_cells');
-                var logo = document.getElementById('voila-logo-wrapper');
-                if (scrollContainer && logo) {{
-                    scrollContainer.prepend(logo);
-                    logo.style.display = 'block';
-                    clearInterval(logoMover);
-                }}
-                moveAttempts++;
-                if (moveAttempts > 100) clearInterval(logoMover);
-            }}, 100);
+            {logo_mover_js}
         }})();
         </script>
         """

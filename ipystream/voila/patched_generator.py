@@ -24,14 +24,14 @@ def build_injection(timeout_spinner, show_logo):
     current_script_dir = os.path.dirname(os.path.abspath(__file__))
     logo_path = os.path.join(current_script_dir, "resources", "logo.png")
 
-    logo_html = ""
+    logo_html = get_logo_html(None)
     if show_logo:
         try:
             with open(logo_path, "rb") as _f:
                 _LOGO_B64 = base64.b64encode(_f.read()).decode()
             logo_html = get_logo_html(_LOGO_B64)
         except Exception:
-            logo_html = ""
+            pass
 
     return (
         "<style>"
