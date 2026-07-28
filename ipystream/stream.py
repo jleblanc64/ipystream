@@ -204,10 +204,13 @@ class Stream(BaseModel):
             # update on change
             wu.stream_down_obs(currents, children, self.debouncer, level_below, self, last_level)
 
-    def manually_update_stream(self, start_level=None, level_to_default_value=None):
+    def manually_update_stream(self, start_level=None, level_to_default_value=None, level_i_only=None):
         levels = list(self.level_to_widget.keys())
         levels.sort()
         for level_i, level in enumerate(levels):
+            if level_i_only is not None and level_i != level_i_only:
+                continue
+
             wu = self.level_to_widget[level]
             currents = wu.widgets
 
