@@ -3,7 +3,7 @@ import logging
 import os
 
 with contextlib.redirect_stdout(open(os.devnull, "w")):
-    from ipystream.voila import patched_generator, auth_wall_limit, patch_voila
+    from ipystream.voila import patched_generator, auth_wall_limit, patch_voila, utils_log
 from ipystream.voila.utils import create_ipynb, is_sagemaker
 import json
 import site
@@ -13,6 +13,7 @@ from pathlib import Path
 
 def run(
     disable_logging=True,
+    cleanup_log_file_on_startup=True,
     POOL_SIZE=1,
     MAX_KERNELS=8,
     enforce_single_page_per_user=True,
@@ -81,6 +82,9 @@ def run(
         devnull = os.open(os.devnull, os.O_WRONLY)
         os.dup2(devnull, 1)
         os.dup2(devnull, 2)
+
+    if cleanup_log_file_on_startup:
+        utils_log.cleanup_log()
 
     voila_app.start()
 

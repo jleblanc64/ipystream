@@ -17,7 +17,8 @@ log_path = find_project_root() / "logs.txt"
 
 
 def cleanup_log():
-    log_path.write_text("")
+    if log_path.exists():
+        log_path.write_text("")
 
 
 log = SimpleLogger(log_path)
