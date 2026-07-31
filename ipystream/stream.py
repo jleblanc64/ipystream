@@ -31,7 +31,7 @@ class WidgetUpdater(BaseModel):
         super().__init__(**data)
         original_updater = self.updater
         if original_updater and self.stacktrace_out:
-            self.updater = lambda w: with_stacktrace(original_updater, self.stacktrace_out)
+            self.updater = lambda w: with_stacktrace(lambda: original_updater(w), self.stacktrace_out)
 
     def stream_down(
         self,
