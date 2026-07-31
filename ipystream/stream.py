@@ -1,8 +1,8 @@
 import threading
 from typing import Any, Callable
 from IPython.core.display_functions import display
-from ipywidgets import HTML, HBox, IntText
-from pydantic import BaseModel
+from ipywidgets import HTML, HBox, IntText, Output
+from pydantic import BaseModel, ConfigDict
 from ipystream.async_debounce import AsyncDebouncer
 from ipystream.utils import (
     proxy_display,
@@ -11,17 +11,27 @@ from ipystream.utils import (
     remove_internal_counter,
     internal_counter_desc,
 )
+from ipystream.utils_stacktrace import with_stacktrace
 from ipystream.widget_currents_children import WidgetCurrentsChildren
 
 display_sep = "---------------------------------------------------------"
 
 
 class WidgetUpdater(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     widgets: list[Any]
     updater: Callable[[WidgetCurrentsChildren], None] | None
     vertical: bool
     title: str | None
     split_hbox_after: int | None
+    stacktrace_out: Output | None
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        original_updater = self.updater
+        if original_updater and self.stacktrace_out:
+            self.updater = lambda w: with_stacktrace(original_updater, self.stacktrace_out)
 
     def stream_down(
         self,
@@ -148,6 +158,7 @@ class Stream(BaseModel):
         vertical=False,
         title=None,
         split_hbox_after=None,
+        stacktrace_out=None,
     ):
         if not self.level_to_widget:
             self.lock = threading.RLock()
@@ -162,6 +173,7 @@ class Stream(BaseModel):
             vertical=vertical,
             title=title,
             split_hbox_after=split_hbox_after,
+            stacktrace_out=stacktrace_out,
         )
 
     def display_registered(self):
