@@ -2,6 +2,8 @@ import contextlib
 import logging
 import os
 
+from ipystream.voila.utils_sagemaker import get_sagemaker_url
+
 with contextlib.redirect_stdout(open(os.devnull, "w")):
     from ipystream.voila import patched_generator, auth_wall_limit, patch_voila, utils_log
 from ipystream.voila.utils import create_ipynb, is_sagemaker
@@ -75,7 +77,11 @@ def run(
     # start Voila
     voila_app = patch_voila.patch()
     voila_app.initialize()
-    print(f"APP: http://localhost:{port}")
+
+    url = f"http://localhost:{port}"
+    if is_sagemaker():
+        url = get_sagemaker_url(port)
+    print(f"APP: {url}")
 
     if disable_logging:
         logging.disable(logging.CRITICAL)
