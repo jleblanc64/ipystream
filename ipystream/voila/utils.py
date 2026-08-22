@@ -31,10 +31,37 @@ def is_sagemaker():
     return any(var in os.environ for var in sm_vars)
 
 
-def create_ipynb(path: str, use_xpython: bool, notebook: str | None) -> Path:
+def create_ipynb(path: str, use_xpython: bool, notebook: str | None, lazy_run: bool) -> Path:
     if not notebook:
         folder = "python." if Path("python").is_dir() else ""
         notebook = f"{folder}notebook"
+
+    code = [
+        "from ipystream.voila.kernel_heartbeat import setup_heartbeat_checker\n",
+        f"from {notebook} import run\n",
+        "import warnings\n",
+        "warnings.filterwarnings('ignore')\n",
+        "setup_heartbeat_checker()\n",
+        "run()",
+    ]
+
+    if lazy_run:
+        code = [
+            "from ipystream.voila.kernel_heartbeat import setup_heartbeat_checker\n",
+            f"from {notebook} import run\n",
+            "import warnings\n",
+            "from ipywidgets import Output\n",
+            "from IPython.core.display_functions import display\n",
+            "from ipystream.voila.utils_browser_ready import on_browser_ready\n",
+            "warnings.filterwarnings('ignore')\n",
+            "setup_heartbeat_checker()\n",
+            "out = Output()\n",
+            "display(out)\n",
+            "def run_out():\n",
+            "    with out:\n",
+            "        run()\n",
+            "on_browser_ready(run_out)",
+        ]
 
     notebook_data = {
         "cells": [
@@ -44,14 +71,7 @@ def create_ipynb(path: str, use_xpython: bool, notebook: str | None) -> Path:
                 "id": "run-cell",
                 "metadata": {},
                 "outputs": [],
-                "source": [
-                    "from ipystream.voila.kernel_heartbeat import setup_heartbeat_checker\n",
-                    f"from {notebook} import run\n",
-                    "import warnings\n",
-                    "warnings.filterwarnings('ignore')\n",
-                    "setup_heartbeat_checker()\n",
-                    "run()",
-                ],
+                "source": code,
             }
         ],
         "metadata": {},

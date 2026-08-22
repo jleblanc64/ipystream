@@ -20,6 +20,7 @@ def run(
     MAX_KERNELS=8,
     enforce_single_page_per_user=True,
     timeout_spinner=20,
+    lazy_run: bool = False,
     notebook: str | None = None,
     use_xpython: bool | None = None,
     enforce_PARAM_KEY_TOKEN=False,
@@ -71,7 +72,7 @@ def run(
     if extra_args_override:
         extra_args = extra_args_override
 
-    create_ipynb(NOTEBOOK, use_xpython, notebook)
+    create_ipynb(NOTEBOOK, use_xpython, notebook, lazy_run)
     sys.argv = ["voila", NOTEBOOK] + extra_args
 
     # start Voila
