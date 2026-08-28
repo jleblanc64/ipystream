@@ -28,6 +28,7 @@ def run(
     token_to_user_fun=None,
     extra_args_override=None,
     port=8866,
+    show_app_url=True,
     show_logo=True,
 ):
     if not is_sagemaker():
@@ -82,7 +83,8 @@ def run(
     url = f"http://localhost:{port}"
     if is_sagemaker():
         url = get_sagemaker_url(port)
-    print(f"APP: {url}")
+    if show_app_url:
+        print(f"APP: {url}")
 
     if disable_logging:
         logging.disable(logging.CRITICAL)
