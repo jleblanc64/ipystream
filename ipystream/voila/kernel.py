@@ -5,6 +5,8 @@ from pathlib import Path
 from IPython import get_ipython
 from jupyter_server.services.kernels.kernelmanager import MappingKernelManager
 
+from ipystream.voila.utils import OS_JWT_OVERRIDE
+
 global_kernel_manager = None
 
 
@@ -41,6 +43,9 @@ def get_user():
 
 
 def get_token(cache: dict = {}):
+    if OS_JWT_OVERRIDE in os.environ:
+        return os.environ[OS_JWT_OVERRIDE]
+
     if "TEST" in cache:
         return cache["jwt"]
 

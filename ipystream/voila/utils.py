@@ -4,6 +4,7 @@ from http.cookies import SimpleCookie
 from pathlib import Path
 
 PARAM_KEY_TOKEN = "tok"
+OS_JWT_OVERRIDE = "jwt_override"
 
 
 def get_token_from_headers(headers_dict):
