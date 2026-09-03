@@ -21,7 +21,7 @@ from ipystream.voila.utils import get_token_from_headers, PARAM_KEY_TOKEN
 import base64
 
 
-def build_injection(timeout_spinner, show_logo):
+def build_injection(timeout_spinner, show_logo, debug):
     current_script_dir = os.path.dirname(os.path.abspath(__file__))
     logo_path = os.path.join(current_script_dir, "resources", "logo.png")
 
@@ -57,11 +57,11 @@ def build_injection(timeout_spinner, show_logo):
         "        }"
         f"    }}, {(timeout_spinner + 5) * 1000});"
         "})();"
-        "</script>" + BROWSER_LOG_JS
+        "</script>" + (BROWSER_LOG_JS if debug else "")
     )
 
 
-def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner, show_logo):
+def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner, show_logo, debug):
     # --- Patch VoilaHandler to require ?user=... ---
     _original_prepare = VoilaHandler.prepare
 
@@ -134,7 +134,7 @@ def patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner, show_log
         self.set_header("Expires", "0")
 
         # FIX: Yield injection here so it only happens once per page load
-        yield build_injection(timeout_spinner, show_logo)
+        yield build_injection(timeout_spinner, show_logo, debug)
 
         try:
             current_notebook_data: Dict = self.kernel_manager.notebook_data.get(notebook_path, {})
