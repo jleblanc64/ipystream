@@ -14,6 +14,7 @@ from voila.handler import VoilaHandler
 from tornado.web import HTTPError
 
 from ipystream.voila.logo import get_logo_html
+from ipystream.voila.log_steps import BROWSER_LOG_JS
 from ipystream.voila.patched_generator2 import timeout
 from ipystream.voila.utils import get_token_from_headers, PARAM_KEY_TOKEN
 
@@ -56,7 +57,7 @@ def build_injection(timeout_spinner, show_logo):
         "        }"
         f"    }}, {(timeout_spinner + 5) * 1000});"
         "})();"
-        "</script>"
+        "</script>" + BROWSER_LOG_JS
     )
 
 

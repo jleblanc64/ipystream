@@ -2,10 +2,12 @@ import contextlib
 import logging
 import os
 
+from voila.app import Voila
+
 from ipystream.voila.utils_sagemaker import get_sagemaker_url
 
 with contextlib.redirect_stdout(open(os.devnull, "w")):
-    from ipystream.voila import patched_generator, auth_wall_limit, patch_voila, utils_log
+    from ipystream.voila import patched_generator, auth_wall_limit, patch_voila, utils_log, log_steps
 from ipystream.voila.utils import create_ipynb, is_sagemaker
 import json
 import site
@@ -42,6 +44,7 @@ def run(
 
     patched_generator.patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner, show_logo)
     auth_wall_limit.patch(log_user_fun, token_to_user_fun, MAX_KERNELS, enforce_single_page_per_user)
+    log_steps.patch_log_steps()
 
     NOTEBOOK = "jupyter.ipynb"
 
@@ -76,6 +79,10 @@ def run(
     create_ipynb(NOTEBOOK, use_xpython, notebook, lazy_run)
     sys.argv = ["voila", NOTEBOOK] + extra_args
 
+    # clear the log BEFORE the app starts, so the first preheat render is kept
+    if cleanup_log_file_on_startup:
+        utils_log.cleanup_log()
+
     # start Voila
     voila_app = patch_voila.patch()
     voila_app.initialize()
@@ -92,8 +99,12 @@ def run(
         os.dup2(devnull, 1)
         os.dup2(devnull, 2)
 
-    if cleanup_log_file_on_startup:
-        utils_log.cleanup_log()
+    _orig_init_settings = Voila.init_settings
+    def init_settings(self):
+        settings = _orig_init_settings(self)
+        settings["compress_response"] = True
+        return settings
+    Voila.init_settings = init_settings
 
     voila_app.start()
 
