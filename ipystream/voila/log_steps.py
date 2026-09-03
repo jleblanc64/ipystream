@@ -1,28 +1,3 @@
-"""
-Instrumentation of every step that happens while the voila spinner (#loading) is displayed.
-
-Usage, in Ipystream.run(), BEFORE patch_voila.patch():
-
-    patched_generator.patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner, show_logo)
-    auth_wall_limit.patch(...)
-    log_steps.patch_log_steps()
-
-    voila_app = patch_voila.patch()
-    voila_app.initialize()
-
-Call it EXACTLY ONCE (the _PATCHED guard enforces this): the class-level patches wrap
-whatever is currently installed, so a second call makes every line appear twice.
-
-Ordering constraints:
-  - must run AFTER patch_voila_get_generator / auth_wall_limit.patch, since it wraps their versions
-  - must run BEFORE voila.app is imported: app.py binds `voila_kernel_manager_factory` by name
-    at import time, so the factory has to be swapped first
-  - Voila.init_handlers is patched to register the browser log endpoint, because Voila only
-    creates self.app inside start(), which then immediately enters the IOLoop
-
-Everything is written with utils_log.log() -> <project root>/logs.txt
-"""
-
 import itertools
 import time
 

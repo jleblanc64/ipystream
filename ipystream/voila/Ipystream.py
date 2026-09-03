@@ -1,9 +1,7 @@
 import contextlib
+import io
 import logging
 import os
-
-from voila.app import Voila
-
 from ipystream.voila.utils_sagemaker import get_sagemaker_url
 
 with contextlib.redirect_stdout(open(os.devnull, "w")):
@@ -25,6 +23,7 @@ def run(
     lazy_run: bool = False,
     notebook: str | None = None,
     use_xpython: bool | None = None,
+    disable_extensions=False,
     enforce_PARAM_KEY_TOKEN=False,
     log_user_fun=None,
     token_to_user_fun=None,
@@ -32,6 +31,7 @@ def run(
     port=8866,
     show_app_url=True,
     show_logo=True,
+    debug=False,
 ):
     if not is_sagemaker():
         verify_local_call()
@@ -44,7 +44,9 @@ def run(
 
     patched_generator.patch_voila_get_generator(enforce_PARAM_KEY_TOKEN, timeout_spinner, show_logo)
     auth_wall_limit.patch(log_user_fun, token_to_user_fun, MAX_KERNELS, enforce_single_page_per_user)
-    log_steps.patch_log_steps()
+
+    if debug:
+        log_steps.patch_log_steps()
 
     NOTEBOOK = "jupyter.ipynb"
 
@@ -99,12 +101,41 @@ def run(
         os.dup2(devnull, 1)
         os.dup2(devnull, 2)
 
-    _orig_init_settings = Voila.init_settings
-    def init_settings(self):
-        settings = _orig_init_settings(self)
-        settings["compress_response"] = True
-        return settings
-    Voila.init_settings = init_settings
+    if disable_extensions:
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            from voila.app import Voila
+        _orig_init_settings = Voila.init_settings
+
+        def init_settings(self):
+            self.voila_configuration.extension_denylist = [
+                "amazon-q-developer-jupyterlab-ext",
+                "@amzn/amazon_sagemaker_jupyter_ai_q_developer",
+                "@amzn/amazon_sagemaker_sql_editor",
+                "@amzn/amzn_sagemaker_aiops_jupyterlab_extension",
+                "@amzn/sagemaker-jupyter-scheduler",
+                "@amzn/sagemaker-jupyterlab-emr-extension",
+                "@amzn/sagemaker-jupyterlab-extension-common",
+                "@amzn/sagemaker-jupyterlab-extensions",
+                "@amzn/sagemaker_gen_ai_jupyterlab_extension",
+                "@jupyter-ai/core",
+                "@jupyter-lsp/jupyterlab-lsp",
+                "@jupyterlab/git",
+                "@jupyterlab/scheduler",
+                "@jupyterhub/jupyter-server-proxy",
+                "@jupyter-notebook/lab-extension",
+                "@jupyter/docprovider-extension",
+                "@voila-dashboards/widgets-manager7",
+                "nbdime-jupyterlab",
+                "catboost-widget",
+                "bqplot",
+                "bqscales",
+                "ipydatagrid",
+            ]
+            settings = _orig_init_settings(self)
+            settings["compress_response"] = True
+            return settings
+
+        Voila.init_settings = init_settings
 
     voila_app.start()
 
