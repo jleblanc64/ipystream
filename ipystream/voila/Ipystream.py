@@ -23,6 +23,7 @@ def run(
     lazy_run: bool = False,
     notebook: str | None = None,
     use_xpython: bool | None = None,
+    tag: str | None = None,
     disable_extensions=False,
     enforce_PARAM_KEY_TOKEN=False,
     log_user_fun=None,
@@ -78,7 +79,7 @@ def run(
     if extra_args_override:
         extra_args = extra_args_override
 
-    create_ipynb(NOTEBOOK, use_xpython, notebook, lazy_run)
+    create_ipynb(NOTEBOOK, use_xpython, notebook, lazy_run, tag)
     sys.argv = ["voila", NOTEBOOK] + extra_args
 
     # clear the log BEFORE the app starts, so the first preheat render is kept

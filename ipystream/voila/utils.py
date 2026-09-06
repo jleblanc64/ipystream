@@ -32,12 +32,25 @@ def is_sagemaker():
     return any(var in os.environ for var in sm_vars)
 
 
-def create_ipynb(path: str, use_xpython: bool, notebook: str | None, lazy_run: bool) -> Path:
+def create_ipynb(path: str, use_xpython: bool, notebook: str | None, lazy_run: bool, tag: str | None) -> Path:
     if not notebook:
         folder = "python." if Path("python").is_dir() else ""
         notebook = f"{folder}notebook"
 
-    code = [
+    # see tag in `ps auxww | grep xpython_launcher`
+    title = (
+        [
+            "try:\n",
+            "    from setproctitle import setproctitle, getproctitle\n",
+            "    _before = getproctitle()\n",
+            f"    setproctitle(_before + ' #{tag}')\n",
+            "except Exception:\n",
+            "    pass\n",
+        ]
+        if tag
+        else []
+    )
+    code = title + [
         "from ipystream.voila.kernel_heartbeat import setup_heartbeat_checker\n",
         f"from {notebook} import run\n",
         "import warnings\n",
@@ -47,7 +60,7 @@ def create_ipynb(path: str, use_xpython: bool, notebook: str | None, lazy_run: b
     ]
 
     if lazy_run:
-        code = [
+        code = title + [
             "from ipystream.voila.kernel_heartbeat import setup_heartbeat_checker\n",
             f"from {notebook} import run\n",
             "import warnings\n",
