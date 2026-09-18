@@ -34,6 +34,7 @@ black = "23.1.0"
 flake8 = "6.0.0"
 openpyxl = "3.1.5"
 ipydatagrid = "1.1.16"
+ipyleaflet = "0.20.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
