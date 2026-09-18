@@ -1,4 +1,5 @@
-"""Display the building polygons from ~/Downloads/geoadmin.geojson on a map centered on them (Voila / ipyleaflet)."""
+"""Display the building polygons from ~/Downloads/geoadmin.geojson on a map centered on them (Voila / ipyleaflet).
+The shell is displayed immediately; the file is read and the map built once the browser is ready."""
 import json
 import math
 from pathlib import Path
@@ -6,6 +7,7 @@ from pathlib import Path
 from IPython.core.display_functions import display
 from ipyleaflet import Map, GeoJSON, basemaps
 from ipywidgets import widgets, HTML
+from ipystream.voila.utils_browser_ready import on_browser_ready
 
 GEOJSON_PATH = Path("~/Downloads/geoadmin.geojson").expanduser()
 MAP_W_PX, MAP_H_PX = 900, 600          # width only feeds the first-guess zoom
@@ -44,12 +46,8 @@ def _center_zoom(features):
     return (lat_c, lon_c), max(1, min(19, min(z_lon, z_lat))), (dlon, dlat)
 
 
-def run():
-    try:
-        fc = _load(GEOJSON_PATH)
-    except Exception as exc:
-        return display(HTML(f"<b style='color:#b3312c'>⚠ Could not read {GEOJSON_PATH}: {type(exc).__name__}: {exc}</b>"))
-
+def _build_map(fc):
+    """Map + Center button for a FeatureCollection. Returns the widgets to show."""
     center, guess, span = _center_zoom(fc["features"])
     view = {"zoom": guess}                 # the fitted zoom, shared with the Center button
     m = Map(center=center, zoom=guess, zoom_snap=0.25, zoom_delta=0.5, basemap=basemaps.OpenStreetMap.Mapnik,
@@ -78,5 +76,27 @@ def run():
         m.center, m.zoom = center, view["zoom"]
 
     btn_center.on_click(_recenter)
-    display(HTML(f"<div style='font-family:sans-serif;font-size:13px;margin:0 0 6px'>"
-                 f"{len(fc['features'])} feature(s) from <code>{GEOJSON_PATH}</code></div>"), m, btn_center)
+    return [m, btn_center]
+
+
+def run():
+    # Phase 1: bare shell, displayed immediately.
+    header = HTML(f"<div style='font-family:sans-serif;font-size:13px;margin:0 0 6px'>"
+                  f"Loading <code>{GEOJSON_PATH}</code>…</div>")
+    body = widgets.VBox(layout=widgets.Layout(min_height=f"{MAP_H_PX}px"))
+    display(header, body)
+
+    def _init_app():
+        # Phase 2, once the browser is ready: read the file and build the map.
+        try:
+            fc = _load(GEOJSON_PATH)
+        except Exception as exc:
+            header.value = (f"<b style='color:#b3312c'>⚠ Could not read {GEOJSON_PATH}: "
+                            f"{type(exc).__name__}: {exc}</b>")
+            body.layout.min_height = None
+            return
+        body.children = _build_map(fc)
+        header.value = (f"<div style='font-family:sans-serif;font-size:13px;margin:0 0 6px'>"
+                        f"{len(fc['features'])} feature(s) from <code>{GEOJSON_PATH}</code></div>")
+
+    on_browser_ready(_init_app)
