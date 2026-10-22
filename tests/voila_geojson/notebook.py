@@ -66,7 +66,8 @@ def _load(path):
             continue
         matched.append({"type": "Feature", "geometry": f["geometry"], "properties": {
             "_i": len(matched), ADDRESS_ID: a.get(ADDRESS_ID), "address": a.get("address") or "(no address)",
-            "building_type": a.get("building_type")}})
+            "building_type": a.get("building_type"), "nbr_floor": a.get("nbr_floor"),
+            "construction_end": a.get("construction_end")}})
 
     addresses = [{"type": "Feature", "properties": {"address": a.get("address") or "(no address)",
                                                     "building_ground_area": a.get("building_ground_area"),
@@ -135,7 +136,7 @@ def _build_map(base, matched, unmatched, addresses):
                                        + addresses["features"])
     view = {"zoom": guess}                 # the fitted zoom, shared with the Center button
     m = Map(center=center, zoom=guess, zoom_snap=0.25, zoom_delta=0.5, basemap=basemaps.OpenStreetMap.Mapnik,
-            scroll_wheel_zoom=True, double_click_zoom=False,
+            scroll_wheel_zoom=True, double_click_zoom=False,   # fast on/off clicks must not zoom the map
             layout=widgets.Layout(width="100%", height=f"{MAP_H_PX}px"))
 
     # Base layer first so everything else is drawn (and clickable) on top of it.
@@ -179,6 +180,8 @@ def _build_map(base, matched, unmatched, addresses):
                           f"{'Added PV to' if added else 'Removed PV from'} address:</span> "
                           f"<b>{props.get('address', '')}</b>"
                           f"<span style='color:#6b7280'>  ·  {props.get('building_type') or '–'}"
+                          f"  ·  {props.get('nbr_floor') if props.get('nbr_floor') is not None else '–'} floor(s)"
+                          f"  ·  built {props.get('construction_end') or '–'}"
                           f"  ·  {ADDRESS_ID} {props.get(ADDRESS_ID)}  ·  {len(picked)} building(s) with PV</span></div>")
 
     buildings.on_click(_on_building_click)
