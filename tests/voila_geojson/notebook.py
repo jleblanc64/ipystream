@@ -1,5 +1,6 @@
-"""Display the buildings and addresses from ~/Downloads/gis_hub.json on a map centered on them (Voila / ipyleaflet).
-Buildings are drawn as polygons, addresses as small red circles; clicking a circle shows its address under the map.
+"""Display the base layer, buildings and addresses from ~/Downloads/gis_hub.json on a map centered on them
+(Voila / ipyleaflet). The base layer is drawn as purple polygons underneath, buildings as teal polygons,
+addresses as small red circles; clicking a circle shows its address under the map.
 The shell is displayed immediately; the file is read and the map built once the browser is ready."""
 import json
 import math
@@ -12,23 +13,35 @@ from ipystream.voila.utils_browser_ready import on_browser_ready
 
 GIS_HUB_PATH = Path("~/Downloads/gis_hub.json").expanduser()
 MAP_W_PX, MAP_H_PX = 900, 600          # width only feeds the first-guess zoom
-FIT_PADDING = 0.92                     # keep a small margin around the buildings
-TEAL, RED = "#0f9d8f", "#d62728"
+FIT_PADDING = 0.92                     # keep a small margin around the features
+TEAL, RED, PURPLE = "#0f9d8f", "#d62728", "#7b3fbf"
 TEXT_STYLE = "font-family:sans-serif;font-size:13px"
 
 
+def _as_features(layer):
+    """A FeatureCollection, a single Feature or a bare geometry → list of Features with a drawable footprint."""
+    if not layer:
+        return []
+    t = layer.get("type")
+    feats = (layer.get("features") or [] if t == "FeatureCollection"
+             else [layer] if t == "Feature"
+    else [{"type": "Feature", "properties": {}, "geometry": layer}])
+    return [f for f in feats if _points(f.get("geometry"))]
+
+
 def _load(path):
-    """(buildings, addresses) as two FeatureCollections. Buildings with an empty footprint are dropped;
+    """(base, buildings, addresses) as three FeatureCollections. Polygons with an empty footprint are dropped;
     addresses become Point features carrying the address text."""
     hub = json.loads(path.read_text())
-    buildings = [f for f in (hub.get("building_layer") or {}).get("features", []) if _points(f.get("geometry"))]
+    base = _as_features(hub.get("base_layer"))
+    buildings = _as_features(hub.get("building_layer"))
     addresses = [{"type": "Feature", "properties": {"address": a.get("address") or "(no address)",
                                                     "building_ground_area": a.get("building_ground_area"),
                                                     "building_type": a.get("building_type")},
                   "geometry": {"type": "Point", "coordinates": [a["lon"], a["lat"]]}}
                  for a in hub.get("addresses") or [] if a.get("lon") is not None and a.get("lat") is not None]
-    return ({"type": "FeatureCollection", "features": buildings},
-            {"type": "FeatureCollection", "features": addresses})
+    fc = lambda feats: {"type": "FeatureCollection", "features": feats}
+    return fc(base), fc(buildings), fc(addresses)
 
 
 def _points(geom):
@@ -54,12 +67,17 @@ def _center_zoom(features):
     return (lat_c, lon_c), max(1, min(19, min(z_lon, z_lat))), (dlon, dlat)
 
 
-def _build_map(buildings, addresses):
+def _build_map(base, buildings, addresses):
     """Map + Center button + clicked-address readout. Returns the widgets to show."""
-    center, guess, span = _center_zoom(buildings["features"] + addresses["features"])
+    center, guess, span = _center_zoom(base["features"] + buildings["features"] + addresses["features"])
     view = {"zoom": guess}                 # the fitted zoom, shared with the Center button
     m = Map(center=center, zoom=guess, zoom_snap=0.25, zoom_delta=0.5, basemap=basemaps.OpenStreetMap.Mapnik,
             scroll_wheel_zoom=True, layout=widgets.Layout(width="100%", height=f"{MAP_H_PX}px"))
+
+    # Base layer first so buildings and addresses are drawn (and clickable) on top of it.
+    if base["features"]:
+        m.add_layer(GeoJSON(data=base, style={"color": PURPLE, "weight": 2, "opacity": 0.9, "fillColor": PURPLE,
+                                              "fillOpacity": 0.12}))
     m.add_layer(GeoJSON(data=buildings, style={"color": TEAL, "weight": 1.5, "opacity": 0.8, "fillColor": TEAL,
                                                "fillOpacity": 0.08}, hover_style={"fillOpacity": 0.3}))
 
@@ -92,7 +110,7 @@ def _build_map(buildings, addresses):
             m.center, m.zoom = center, view["zoom"]
 
     m.observe(_fit_once, names="bounds")
-    btn_center = widgets.Button(description="Center map", icon="crosshairs", tooltip="Recenter on the buildings",
+    btn_center = widgets.Button(description="Center map", icon="crosshairs", tooltip="Recenter on the map content",
                                 layout=widgets.Layout(width="130px", margin="8px 0 0 0"))
 
     def _recenter(_b=None):
@@ -111,14 +129,15 @@ def run():
     def _init_app():
         # Phase 2, once the browser is ready: read the file and build the map.
         try:
-            buildings, addresses = _load(GIS_HUB_PATH)
+            base, buildings, addresses = _load(GIS_HUB_PATH)
         except Exception as exc:
             header.value = (f"<b style='color:#b3312c'>⚠ Could not read {GIS_HUB_PATH}: "
                             f"{type(exc).__name__}: {exc}</b>")
             body.layout.min_height = None
             return
-        body.children = _build_map(buildings, addresses)
-        header.value = (f"<div style='{TEXT_STYLE};margin:0 0 6px'>{len(buildings['features'])} building(s) · "
+        body.children = _build_map(base, buildings, addresses)
+        header.value = (f"<div style='{TEXT_STYLE};margin:0 0 6px'>{len(base['features'])} base polygon(s) · "
+                        f"{len(buildings['features'])} building(s) · "
                         f"{len(addresses['features'])} address(es) from <code>{GIS_HUB_PATH}</code></div>")
 
     on_browser_ready(_init_app)
