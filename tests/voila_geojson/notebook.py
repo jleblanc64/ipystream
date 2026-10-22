@@ -135,7 +135,8 @@ def _build_map(base, matched, unmatched, addresses):
                                        + addresses["features"])
     view = {"zoom": guess}                 # the fitted zoom, shared with the Center button
     m = Map(center=center, zoom=guess, zoom_snap=0.25, zoom_delta=0.5, basemap=basemaps.OpenStreetMap.Mapnik,
-            scroll_wheel_zoom=True, layout=widgets.Layout(width="100%", height=f"{MAP_H_PX}px"))
+            scroll_wheel_zoom=True, double_click_zoom=False,
+            layout=widgets.Layout(width="100%", height=f"{MAP_H_PX}px"))
 
     # Base layer first so everything else is drawn (and clickable) on top of it.
     if base["features"]:
