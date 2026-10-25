@@ -138,6 +138,21 @@ def run(
 
         Voila.init_settings = init_settings
 
+    # health-check endpoint for the load balancer (no auth, no kernel)
+    import tornado.web
+    from voila.app import Voila
+
+    class PingHandler(tornado.web.RequestHandler):
+        def get(self):
+            self.write("ok")
+
+    _orig_init_handlers = Voila.init_handlers
+
+    def init_handlers(self):
+        return [(r"/ping", PingHandler)] + _orig_init_handlers(self)
+
+    Voila.init_handlers = init_handlers
+
     voila_app.start()
 
 
