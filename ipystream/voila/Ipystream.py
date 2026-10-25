@@ -92,7 +92,10 @@ def run(
 
     url = f"http://localhost:{port}"
     if is_sagemaker():
-        url = get_sagemaker_url(port)
+        try:
+            url = get_sagemaker_url(port)
+        except:
+            pass
     if show_app_url:
         print(f"APP: {url}")
 

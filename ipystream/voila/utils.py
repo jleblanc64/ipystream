@@ -27,7 +27,6 @@ def is_sagemaker():
     sm_vars = [
         "SAGEMAKER_SPACE_NAME",
         "SAGEMAKER_APP_TYPE",
-        "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI",
     ]
     return any(var in os.environ for var in sm_vars)
 
